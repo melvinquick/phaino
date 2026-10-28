@@ -1,0 +1,16 @@
+exclude_dirs:
+  [
+    ".venv/",
+    "dist/",
+    "src/phaino/__pycache__",
+    "src/phaino/resources/",
+    ".gitignore",
+    ".python-version",
+    "bandit.yaml",
+    "LICENSE",
+    "pyproject.toml",
+    "README.md",
+    "uv.lock",
+  ]
+tests: []
+skips: []
