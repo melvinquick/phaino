@@ -1,0 +1,22 @@
+[project]
+name = "phaino"
+version = "0.1.0"
+description = "Focused IDE for the minimalist developer."
+readme = "src/phaino/resources/PYPI_README.md"
+authors = [{ name = "Melvin Quick", email = "melvinquick@proton.me" }]
+requires-python = ">=3.11"
+dependencies = ["pyside6>=6.12.0"]
+
+[project.urls]
+repository = "https://github.com/melvinquick/phaino"
+issues = "https://github.com/melvinquick/phaino/issues"
+
+[project.gui-scripts]
+phaino = "phaino.app:main"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[dependency-groups]
+dev = ["bandit>=1.9.4"]
