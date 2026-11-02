@@ -37,7 +37,6 @@ class GitPanel(QWidget):
         self.changes_tree.setColumnWidth(0, 150)
         self.changes_tree.itemDoubleClicked.connect(self.on_file_double_clicked)
 
-        # Add right-click context menu
         self.changes_tree.setContextMenuPolicy(Qt.CustomContextMenu)
         self.changes_tree.customContextMenuRequested.connect(self.show_context_menu)
 
@@ -52,6 +51,10 @@ class GitPanel(QWidget):
 
         # --- Action Buttons ---
         btn_layout = QHBoxLayout()
+
+        self.btn_pull = QPushButton("Pull")
+        self.btn_pull.clicked.connect(self.pull)
+
         self.btn_stage_all = QPushButton("Stage All")
         self.btn_stage_all.clicked.connect(self.stage_all)
 
@@ -62,6 +65,7 @@ class GitPanel(QWidget):
         self.btn_push = QPushButton("Push")
         self.btn_push.clicked.connect(self.push)
 
+        btn_layout.addWidget(self.btn_pull)
         btn_layout.addWidget(self.btn_stage_all)
         btn_layout.addWidget(self.btn_commit)
         btn_layout.addWidget(self.btn_push)
@@ -104,13 +108,13 @@ class GitPanel(QWidget):
                 file_path = line[3:].strip()
 
                 status_map = {
-                    "M": "Modified",
-                    "A": "Added",
-                    "D": "Deleted",
+                    "M": "Modified (Unstaged)",
+                    "A": "Added (Staged)",
+                    "D": "Deleted (Unstaged)",
                     "R": "Renamed",
                     "??": "Untracked",
-                    "MM": "Staged+Modified",
-                    "AM": "Staged+Modified",
+                    "MM": "Staged & Modified",
+                    "AM": "Staged & Modified",
                 }
                 status_text = status_map.get(status_code, status_code)
 
@@ -128,11 +132,9 @@ class GitPanel(QWidget):
 
         menu = QMenu(self)
 
-        # If the file is untracked or modified (but not staged), show Stage
-        if status in ["Modified", "Untracked", "Deleted"]:
+        if "Unstaged" in status or status == "Untracked":
             stage_action = menu.addAction("Stage File")
-        # If the file is staged or staged+modified, show Unstage
-        elif status in ["Added", "Staged+Modified", "AM"]:
+        elif "Staged" in status or "Added" in status:
             stage_action = menu.addAction("Unstage File")
         else:
             stage_action = None
@@ -150,6 +152,10 @@ class GitPanel(QWidget):
         file_path = item.data(0, Qt.UserRole)
         if file_path and os.path.isfile(file_path):
             self.file_selected.emit(file_path)
+
+    def pull(self):
+        self.run_git(["pull"])
+        self.refresh()
 
     def stage_all(self):
         self.run_git(["add", "."])
