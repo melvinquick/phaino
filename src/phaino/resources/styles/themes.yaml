@@ -1,0 +1,32 @@
+phaino_dark:
+  background-color: "#121212"
+  surface-color: "#1E1E1E"
+  widget-background-color: "#2D2D2D"
+  color: "#E0E0E0"
+  muted-color: "#888888"
+  border: "1px solid #333333"
+  accent-color: "#E63946"
+  accent-hover-color: "#FF5A67"
+  accent-text-color: "#FFFFFF"
+  success-color: "#A3BE8C"
+  warning-color: "#EBCB8B"
+  danger-color: "#BF616A"
+
+phaino_light:
+  background-color: "#F5F5F5"
+  surface-color: "#FFFFFF"
+  widget-background-color: "#EAEAEA"
+  color: "#1A1A1A"
+  muted-color: "#666666"
+  border: "1px solid #CCCCCC"
+  accent-color: "#C1121F"
+  accent-hover-color: "#E63946"
+  accent-text-color: "#FFFFFF"
+  success-color: "#2A9D8F"
+  warning-color: "#E9C46A"
+  danger-color: "#E76F51"
+
+general:
+  border-radius: "6px"
+  padding: "8px 12px"
+  font-size: "14px"

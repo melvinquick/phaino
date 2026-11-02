@@ -5,7 +5,10 @@ description = "Focused IDE for the minimalist developer."
 readme = "src/phaino/resources/PYPI_README.md"
 authors = [{ name = "Melvin Quick", email = "melvinquick@proton.me" }]
 requires-python = ">=3.11"
-dependencies = ["pyside6>=6.12.0"]
+dependencies = [
+    "pyside6>=6.12.0",
+    "pyyaml>=6.0.3",
+]
 
 [project.urls]
 repository = "https://github.com/melvinquick/phaino"

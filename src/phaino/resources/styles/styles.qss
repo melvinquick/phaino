@@ -1,0 +1,383 @@
+QLineEdit {
+    background-color: {{widget-background-color}};
+    color: {{color}};
+    border: {{border}};
+    border-radius: {{border-radius}};
+    padding: {{padding}};
+    font-size: {{font-size}};
+    selection-background-color: {{accent-color}};
+}
+
+QLineEdit:focus {
+    border: 1px solid {{accent-color}};
+}
+
+QPushButton {
+    background-color: {{widget-background-color}};
+    color: {{color}};
+    border: {{border}};
+    border-radius: {{border-radius}};
+    padding: {{padding}};
+    font-size: {{font-size}};
+}
+
+QPushButton:hover {
+    border-color: {{accent-color}};
+}
+
+QPushButton#PrimaryButton {
+    background-color: {{accent-color}};
+    color: {{accent-text-color}};
+    border: none;
+    font-weight: 700;
+    padding: 12px 16px;
+    font-size: 15px;
+}
+
+QPushButton#PrimaryButton:hover {
+    background-color: {{accent-hover-color}};
+}
+
+QPlainTextEdit {
+    background-color: {{background-color}};
+    color: {{color}};
+    border: 1px solid {{border}};
+    font-family: 'Fira Code', 'JetBrains Mono', 'Consolas', monospace;
+    font-size: 15px;
+    selection-background-color: {{accent-color}};
+    selection-color: {{accent-text-color}};
+    padding: 10px;
+}
+
+QScrollBar:vertical {
+    border: none;
+    background: {{background-color}};
+    width: 12px;
+    margin: 0px; 
+}
+
+QScrollBar::handle:vertical {
+    background: {{widget-background-color}};
+    min-height: 20px;
+    border-radius: 6px;
+}
+
+QScrollBar::handle:vertical:hover {
+    background: {{accent-color}};
+}
+
+QScrollBar::add-line:vertical, QScrollBar::sub-line:vertical {
+    height: 0px; 
+}
+
+QTreeView {
+    background-color: {{background-color}};
+    color: {{color}};
+    border: none;
+    outline: none;
+}
+
+QTreeView::item {
+    padding: 4px;
+}
+
+QTreeView::item:hover {
+    background-color: {{surface-color}};
+}
+
+QTreeView::item:selected {
+    background-color: {{accent-color}};
+    color: {{accent-text-color}};
+}
+
+QSplitter::handle {
+    background-color: {{muted-color}}; 
+    width: 4px;
+}
+
+QLineEdit#PathInput {
+    background-color: {{surface-color}};
+    color: {{color}};
+    border: none;
+    border-bottom: {{border}};
+    border-radius: 0px;
+    padding: 8px;
+    font-size: 13px;
+}
+
+QLineEdit#PathInput:focus {
+    border-bottom: 1px solid {{accent-color}};
+}
+
+QTabWidget::pane {
+    border: none;
+    background-color: {{background-color}};
+}
+
+QTabWidget {
+    background-color: {{background-color}};
+}
+
+QTabBar {
+    background-color: {{background-color}};
+    border: none;
+}
+
+QTabBar::tab {
+    background-color: {{surface-color}};
+    color: {{muted-color}};
+    padding: 6px 12px;
+    padding-right: 16px;
+    border: none;
+    border-top-left-radius: 4px;
+    border-top-right-radius: 4px;
+    margin-right: 2px;
+    margin-top: 4px;
+}
+
+QTabBar::tab:selected {
+    background-color: {{background-color}};
+    color: {{color}};
+}
+
+QTabBar::tab:hover:!selected {
+    background-color: {{widget-background-color}};
+}
+
+QPushButton#NewTabButton {
+    background-color: transparent;
+    color: {{muted-color}};
+    border: none;
+    font-size: 20px;
+    font-weight: bold;
+    padding: 0px;
+    margin: 0px;
+}
+
+QPushButton#NewTabButton:hover {
+    color: {{accent-color}};
+    background-color: {{surface-color}};
+    border-radius: 4px;
+}
+
+#TerminalOutput {
+    border-top: 1px solid {{border}};
+    padding: 5px;
+    font-family: 'Fira Code', 'JetBrains Mono', 'Consolas', monospace;
+}
+
+#TerminalInput {
+    background-color: {{surface-color}};
+    color: {{color}};
+    border: none;
+    border-top: 1px solid {{border}};
+    padding: 6px 8px;
+    font-family: 'Fira Code', 'JetBrains Mono', 'Consolas', monospace;
+}
+
+#TerminalInput:focus {
+    border-top: 1px solid {{accent-color}};
+}
+
+#FindReplaceWidget {
+    background-color: {{surface-color}};
+    border-bottom: 1px solid {{border}};
+}
+
+QPushButton#CloseFindButton {
+    background-color: transparent;
+    color: {{muted-color}};
+    font-weight: bold;
+    padding: 4px;
+    border: none;
+}
+
+QPushButton#CloseFindButton:hover {
+    color: {{danger-color}};
+}
+
+/* Container Border */
+QWidget#EditorContainer {
+    border-left: 1px solid {{border}};
+}
+
+/* Themed Status Bar */
+QStatusBar {
+    background-color: {{surface-color}};
+    color: {{color}};
+    border-top: 1px solid {{border}};
+}
+
+QStatusBar QLabel {
+    color: {{color}};
+    padding: 0px 8px;
+    font-size: 12px;
+}
+
+/* Main Window Background */
+#MainWindowContent {
+    background-color: {{background-color}};
+}
+
+/* =========================================
+   CUSTOM TITLE BAR & WINDOW CONTROLS
+   ========================================= */
+
+#TitleBar {
+    background-color: {{surface-color}};
+    border-bottom: 1px solid {{border}};
+}
+
+QPushButton#MenuButton {
+    background-color: transparent;
+    color: {{color}};
+    border: none;
+    padding: 0px 12px;
+    font-size: 13px;
+    border-radius: 0px;
+}
+
+QPushButton#MenuButton:hover {
+    background-color: {{widget-background-color}};
+}
+
+QPushButton#MenuButton::menu-indicator {
+    image: none;
+}
+
+/* Window Dots */
+QPushButton#WindowDot {
+    background-color: transparent;
+    border: none;
+    padding: 0px;
+    margin-left: 8px;
+}
+
+/* Menus attached to the custom title bar buttons */
+QMenu {
+    background-color: {{surface-color}};
+    color: {{color}};
+    border: 1px solid {{border}};
+}
+
+QMenu::item {
+    padding: 6px 24px;
+    background-color: transparent;
+}
+
+QMenu::item:selected {
+    background-color: {{accent-color}};
+    color: {{accent-text-color}};
+}
+
+/* =========================================
+   SHORTCUTS WINDOW
+   ========================================= */
+
+#ShortcutsWindow {
+    background-color: {{background-color}};
+}
+
+#ShortcutsTitle {
+    color: {{color}};
+    font-size: 22px;
+    font-weight: bold;
+    margin-bottom: 15px;
+}
+
+#ShortcutSection {
+    color: {{accent-color}};
+    font-size: 16px;
+    font-weight: bold;
+    margin-top: 10px;
+    margin-bottom: 5px;
+}
+
+#ShortcutKey {
+    color: {{warning-color}};
+    font-weight: bold;
+    font-family: 'Fira Code', 'JetBrains Mono', monospace;
+    font-size: 14px;
+}
+
+#ShortcutDesc {
+    color: {{color}};
+    font-size: 14px;
+}
+
+QScrollArea {
+    border: none;
+    background-color: transparent;
+}
+
+/* =========================================
+   GIT STATUS BAR
+   ========================================= */
+
+QStatusBar QLabel#GitLabel {
+    color: {{accent-color}};
+    font-weight: bold;
+    padding: 0px 8px;
+}
+
+/* Git Panel */
+#GitPanel {
+    background-color: {{background-color}};
+}
+
+#GitBranchLabel {
+    color: {{accent-color}};
+    font-size: 16px;
+    font-weight: bold;
+    padding: 5px 0px;
+}
+
+#GitPanel QLabel {
+    color: {{muted-color}};
+    font-size: 12px;
+}
+
+#GitPanel QTreeWidget {
+    background-color: {{surface-color}};
+    color: {{color}};
+    border: 1px solid {{border}};
+    border-radius: 4px;
+}
+
+#GitPanel QTreeWidget::item {
+    padding: 4px;
+}
+
+#GitPanel QTreeWidget::item:selected {
+    background-color: {{accent-color}};
+    color: {{accent-text-color}};
+}
+
+#GitPanel QTextEdit {
+    background-color: {{surface-color}};
+    color: {{color}};
+    border: 1px solid {{border}};
+    border-radius: 4px;
+    padding: 5px;
+    font-family: 'Fira Code', 'JetBrains Mono', monospace;
+}
+
+#GitPanel QPushButton {
+    padding: 6px;
+    font-size: 13px;
+    border-radius: 4px;
+}
+
+#GitPanel QPushButton:hover {
+    background-color: {{surface-color}};
+}
+
+#GitPanel QPushButton#PrimaryButton {
+    background-color: {{accent-color}};
+    color: white;
+    font-weight: bold;
+}
+
+#GitPanel QPushButton#PrimaryButton:hover {
+    background-color: {{accent-hover-color}};
+}
