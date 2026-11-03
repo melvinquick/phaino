@@ -89,6 +89,8 @@ class Phaino(QMainWindow):
         super().__init__()
         self.setWindowFlags(Qt.FramelessWindowHint)
 
+        self.current_root = os.getcwd()
+
         self.settings = QSettings("Phaino", "Phaino")
         saved_theme = self.settings.value("theme", "phaino_dark")
 
@@ -269,12 +271,12 @@ class Phaino(QMainWindow):
 
         # * Create Widgets
         self.file_model = GitFileSystemModel(self.theme_tokens)
-        self.file_model.setRootPath(PROJECT_ROOT)
+        self.file_model.setRootPath(self.current_root)
         self.file_model.setFilter(QDir.NoDotAndDotDot | QDir.AllEntries)
 
         self.tree_view = QTreeView()
         self.tree_view.setModel(self.file_model)
-        self.tree_view.setRootIndex(self.file_model.index(PROJECT_ROOT))
+        self.tree_view.setRootIndex(self.file_model.index(self.current_root))
         self.tree_view.setHeaderHidden(True)
         for i in range(1, 4):
             self.tree_view.setColumnHidden(i, True)
@@ -284,7 +286,7 @@ class Phaino(QMainWindow):
         self.tree_view.customContextMenuRequested.connect(self.show_context_menu)
 
         self.path_input = QLineEdit()
-        self.path_input.setText(PROJECT_ROOT)
+        self.path_input.setText(self.current_root)
         self.path_input.setPlaceholderText("Enter directory path...")
         self.path_input.returnPressed.connect(self.go_to_directory)
         self.path_input.setObjectName("PathInput")
@@ -324,7 +326,7 @@ class Phaino(QMainWindow):
         self.git_panel.file_selected.connect(self.load_file)
         self.git_panel.diff_requested.connect(self.show_diff)
         self.git_panel.repo_changed.connect(self.update_git_status)
-        self.git_panel.set_working_dir(PROJECT_ROOT)
+        self.git_panel.set_working_dir(self.current_root)
 
         self.tabs.create_tab()
 
@@ -559,7 +561,7 @@ class Phaino(QMainWindow):
         if file_path:
             git_root = self.find_git_root(os.path.dirname(file_path))
         else:
-            git_root = self.find_git_root(PROJECT_ROOT)
+            git_root = self.find_git_root(self.current_root)
 
         if not git_root:
             self.lbl_git.hide()
@@ -870,9 +872,18 @@ class Phaino(QMainWindow):
             self.path_input.setText(self.file_model.rootPath())
 
     def set_tree_root(self, path):
+        self.current_root = path
         self.file_model.setRootPath(path)
         self.tree_view.setRootIndex(self.file_model.index(path))
         self.path_input.setText(path)
+
+        git_root = self.find_git_root(path)
+        if git_root:
+            self.git_panel.set_working_dir(git_root)
+        else:
+            self.git_panel.set_working_dir("")
+
+        self.update_git_status()
 
     def open_file_from_tree(self, index):
         file_path = self.file_model.filePath(index)

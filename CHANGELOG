@@ -1,5 +1,17 @@
-# Psswd Box Release Notes
+# Phaino Release Notes
 
 ## 0.1.1 (03 Nov 2026)
 
 - Initial release
+
+## 0.1.2 (21 Jul 2026)
+
+### Major Changes
+
+### Minor Changes
+
+### Patch Changes
+
+- Fixed issues with directory status not changing when traversing within app
+
+### Documentation Changes
