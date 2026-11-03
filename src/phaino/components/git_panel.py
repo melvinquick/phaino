@@ -100,11 +100,14 @@ class GitPanel(QWidget):
                 cwd=self.working_dir,
                 capture_output=True,
                 text=True,
-                timeout=5,
+                timeout=60,
             )
-            if result.stderr and "fatal" in result.stderr.lower():
-                print(f"GIT ERROR: {result.stderr}")
+            if result.stderr.strip():
+                print(f"GIT STDERR ({' '.join(args)}): {result.sptderr.strip()}")
             return result.stdout.strip()
+        except subprocess.TimeoutExpired:
+            print(f"GIT TIMEOUT: {' '.join(args)}")
+            return ""
         except Exception as e:
             print(f"GIT EXCEPTION: {e}")
             return ""
@@ -279,8 +282,11 @@ class GitPanel(QWidget):
 
     def push(self):
         branch = self.run_git(["rev-parse", "--abbrev-ref", "HEAD"])
-        if branch:
-            self.run_git(["push", "--set-upstream", "origin", branch])
+        if not branch:
+            print("PUSH: could not determine current branch")
+            return
+        result = self.run_git(["push", "--set-upstream", "origin", branch])
+        print(f"PUSH RESULT: {result!r}")
         self.refresh()
         self.repo_changed.emit()
 
