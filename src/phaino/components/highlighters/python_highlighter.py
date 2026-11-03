@@ -3,7 +3,6 @@ from PySide6.QtGui import QColor, QFont, QSyntaxHighlighter, QTextCharFormat
 
 
 class PythonHighlighter(QSyntaxHighlighter):
-    # Expose keywords as a class variable for the auto-completer
     keywords = [
         "and",
         "as",
@@ -45,15 +44,13 @@ class PythonHighlighter(QSyntaxHighlighter):
     def __init__(self, document, theme_tokens):
         super().__init__(document)
 
-        text_color = theme_tokens.get("color", "#E0E0E0")
-        accent_color = theme_tokens.get("accent-color", "#E63946")
-        muted_color = theme_tokens.get("muted-color", "#888888")
-        string_color = theme_tokens.get("success-color", "#A3BE8C")
-        keyword_color = theme_tokens.get("warning-color", "#EBCB8B")
-
-        function_color = theme_tokens.get("function-color", "#88C0D0")
-        class_color = theme_tokens.get("class-color", "#B48EAD")
-        decorator_color = theme_tokens.get("decorator-color", "#D08770")
+        accent_color = theme_tokens.get("accent-color")
+        muted_color = theme_tokens.get("muted-color")
+        string_color = theme_tokens.get("success-color")
+        keyword_color = theme_tokens.get("warning-color")
+        function_color = theme_tokens.get("function-color")
+        class_color = theme_tokens.get("class-color")
+        decorator_color = theme_tokens.get("decorator-color")
 
         self.fstring_format = QTextCharFormat()
         self.fstring_format.setForeground(QColor(accent_color))
@@ -63,14 +60,10 @@ class PythonHighlighter(QSyntaxHighlighter):
         keyword_format = QTextCharFormat()
         keyword_format.setForeground(QColor(keyword_color))
         keyword_format.setFontWeight(QFont.Weight.Bold)
-
         keyword_pattern = r"\b(" + "|".join(self.keywords) + r")\b"
         self.highlighting_rules.append(
             (QRegularExpression(keyword_pattern), keyword_format)
         )
-
-        builtin_format = QTextCharFormat()
-        builtin_format.setForeground(QColor(accent_color))
 
         builtins = [
             "print",
@@ -89,6 +82,8 @@ class PythonHighlighter(QSyntaxHighlighter):
             "type",
             "isinstance",
         ]
+        builtin_format = QTextCharFormat()
+        builtin_format.setForeground(QColor(accent_color))
         builtin_pattern = r"\b(" + "|".join(builtins) + r")\b"
         self.highlighting_rules.append(
             (QRegularExpression(builtin_pattern), builtin_format)

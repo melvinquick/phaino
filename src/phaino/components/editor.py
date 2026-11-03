@@ -1,6 +1,7 @@
 import re
-from PySide6.QtCore import QRect, QSize, Qt, QStringListModel, Signal
-from PySide6.QtGui import QColor, QPainter, QTextFormat, QTextCursor, QPen
+
+from PySide6.QtCore import QRect, QSize, QStringListModel, Qt, Signal
+from PySide6.QtGui import QColor, QPainter, QPen, QTextCursor, QTextFormat
 from PySide6.QtWidgets import QCompleter, QPlainTextEdit, QTextEdit, QWidget
 
 
@@ -22,7 +23,7 @@ class RightMargin(QWidget):
         self.code_editor = editor
 
     def sizeHint(self):
-        return QSize(35, 0)  # Increased width to accommodate scrollbar
+        return QSize(35, 0)
 
     def paintEvent(self, event):
         self.code_editor.right_margin_paint_event(event)
@@ -35,9 +36,9 @@ class CodeEditor(QPlainTextEdit):
         super().__init__(parent)
         self.theme_tokens = theme_tokens
 
-        self.bg_color = self.theme_tokens.get("background-color", "#1E1E1E")
-        self.muted_color = self.theme_tokens.get("muted-color", "#888888")
-        self.surface_color = self.theme_tokens.get("surface-color", "#2D2D2D")
+        self.bg_color = self.theme_tokens.get("background-color")
+        self.muted_color = self.theme_tokens.get("muted-color")
+        self.surface_color = self.theme_tokens.get("surface-color")
 
         self.line_number_area = LineNumberArea(self)
         self.right_margin = RightMargin(self)
@@ -48,7 +49,6 @@ class CodeEditor(QPlainTextEdit):
 
         self.update_margin_widths(0)
 
-        # * Setup Auto-Complete
         self.completer = QCompleter(self)
         self.completer.setWidget(self)
         self.completer.setCompletionMode(QCompleter.PopupCompletion)
@@ -58,7 +58,6 @@ class CodeEditor(QPlainTextEdit):
         self.completer.setModel(QStringListModel([]))
 
     def update_margin_widths(self, new_block_count):
-        # Changed 25 to 35 to account for the scrollbar
         self.setViewportMargins(self.line_number_area_width(), 0, 35, 0)
 
     def update_margins(self, rect, dy):
@@ -82,7 +81,6 @@ class CodeEditor(QPlainTextEdit):
         self.line_number_area.setGeometry(
             QRect(cr.left(), cr.top(), self.line_number_area_width(), cr.height())
         )
-        # Changed 25 to 35 here as well
         self.right_margin.setGeometry(QRect(cr.right() - 35, cr.top(), 35, cr.height()))
 
     def right_margin_paint_event(self, event):
@@ -96,7 +94,6 @@ class CodeEditor(QPlainTextEdit):
         )
         bottom = top + round(self.blockBoundingRect(block).height())
 
-        # Regex to find hex codes like #E63946 or #fff
         hex_pattern = re.compile(r"#(?:[0-9a-fA-F]{3}){1,2}\b")
 
         while block.isValid() and top <= event.rect().bottom():
@@ -112,8 +109,6 @@ class CodeEditor(QPlainTextEdit):
                     rect_size = 14
                     y_offset = top + (self.fontMetrics().height() - rect_size) // 2
 
-                    # Center the swatch in the new 35px area (leaving space for the scrollbar)
-                    # The scrollbar is usually around 12px, so we draw in the left 23px.
                     painter.drawRoundedRect(5, y_offset, rect_size, rect_size, 3, 3)
 
             block = block.next()
@@ -284,9 +279,9 @@ class CodeEditor(QPlainTextEdit):
 
     def update_theme(self, theme_tokens):
         self.theme_tokens = theme_tokens
-        self.bg_color = self.theme_tokens.get("background-color", "#1E1E1E")
-        self.muted_color = self.theme_tokens.get("muted-color", "#888888")
-        self.surface_color = self.theme_tokens.get("widget-background-color", "#2D2D2D")
+        self.bg_color = self.theme_tokens.get("background-color")
+        self.muted_color = self.theme_tokens.get("muted-color")
+        self.surface_color = self.theme_tokens.get("widget-background-color")
 
         self.line_number_area.update()
         self.right_margin.update()

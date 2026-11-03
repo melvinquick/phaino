@@ -1,13 +1,13 @@
+from PySide6.QtCore import Qt
 from PySide6.QtWidgets import (
     QDialog,
-    QVBoxLayout,
     QHBoxLayout,
     QLabel,
     QPushButton,
     QScrollArea,
+    QVBoxLayout,
     QWidget,
 )
-from PySide6.QtCore import Qt
 
 
 class ShortcutsWindow(QDialog):
@@ -17,11 +17,11 @@ class ShortcutsWindow(QDialog):
         self.resize(500, 600)
         self.setObjectName("ShortcutsWindow")
 
-        bg_color = theme_tokens.get("background-color", "#121212")
-        color = theme_tokens.get("color", "#E0E0E0")
-        muted = theme_tokens.get("muted-color", "#888888")
-        surface = theme_tokens.get("surface-color", "#1E1E1E")
-        accent = theme_tokens.get("accent-color", "#E63946")
+        bg_color = theme_tokens.get("background-color")
+        color = theme_tokens.get("color")
+        muted = theme_tokens.get("muted-color")
+        surface = theme_tokens.get("surface-color")
+        accent = theme_tokens.get("accent-color")
 
         self.setStyleSheet(f"""
             QDialog {{
@@ -91,7 +91,7 @@ class ShortcutsWindow(QDialog):
         content = QWidget()
         content_layout = QVBoxLayout(content)
         content_layout.setAlignment(Qt.AlignTop)
-        content_layout.setSpacing(8)  # Slightly tighter spacing for a cleaner list
+        content_layout.setSpacing(8)
 
         shortcuts = [
             ("File Operations", None),
@@ -117,7 +117,7 @@ class ShortcutsWindow(QDialog):
             ("Esc", "Close Panel / Hide Popup"),
             ("", ""),
             ("Execution", None),
-            ("Ctrl+R", "Run Current File"),
+            ("Ctrl+R", "Run Current File (requires shebang)"),
             ("", ""),
             ("Help", None),
             ("F1", "Show this window"),

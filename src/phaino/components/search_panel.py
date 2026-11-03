@@ -1,19 +1,20 @@
 import os
+
 from PySide6.QtCore import Qt, Signal
 from PySide6.QtWidgets import (
-    QWidget,
-    QVBoxLayout,
     QHBoxLayout,
     QLineEdit,
     QPushButton,
     QTreeWidget,
     QTreeWidgetItem,
+    QVBoxLayout,
+    QWidget,
 )
 
 
 class SearchPanel(QWidget):
     result_clicked = Signal(str, int)
-    closed = Signal()  # <-- New signal
+    closed = Signal()
 
     def __init__(self, parent=None):
         super().__init__(parent)
@@ -31,7 +32,6 @@ class SearchPanel(QWidget):
         self.btn_search = QPushButton("Search")
         self.btn_search.clicked.connect(self.perform_search)
 
-        # Add the close button
         self.btn_close = QPushButton("✕")
         self.btn_close.setObjectName("CloseFindButton")
         self.btn_close.setFixedWidth(30)
@@ -69,15 +69,11 @@ class SearchPanel(QWidget):
             return
 
         self.results_tree.clear()
+        IGNORE_DIRS = {"__pycache__", "node_modules", ".venv"}
 
         for root, dirs, files in os.walk(self.current_root):
             dirs[:] = [
-                d
-                for d in dirs
-                if not d.startswith(".")
-                and d != "__pycache__"
-                and d != "node_modules"
-                and d != ".venv"
+                d for d in dirs if not d.startswith(".") and d not in IGNORE_DIRS
             ]
 
             for file in files:

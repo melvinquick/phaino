@@ -1,3 +1,5 @@
+import os
+
 from PySide6.QtCore import QEvent, Qt, Signal
 from PySide6.QtGui import QColor, QPainter, QPalette, QPixmap
 from PySide6.QtWidgets import (
@@ -17,6 +19,7 @@ class TabManager(QWidget):
     tab_closed = Signal(int)
     tab_close_requested_with_unsaved_changes = Signal(int)
     cursor_position_changed = Signal(object)
+    editor_text_changed = Signal()
 
     def __init__(self, theme_tokens, parent=None):
         super().__init__(parent)
@@ -72,7 +75,7 @@ class TabManager(QWidget):
         pixmap.fill(Qt.transparent)
         painter = QPainter(pixmap)
         painter.setRenderHint(QPainter.Antialiasing)
-        red_color = self.theme_tokens.get("danger-color", "#E63946")
+        red_color = self.theme_tokens.get("danger-color")
         painter.setBrush(QColor(red_color))
         painter.setPen(Qt.NoPen)
         painter.drawEllipse(2, 2, 8, 8)
@@ -91,7 +94,7 @@ class TabManager(QWidget):
 
     def apply_palette(self):
         palette = self.palette()
-        bg_color = QColor(self.theme_tokens.get("background-color", "#121212"))
+        bg_color = QColor(self.theme_tokens.get("background-color"))
         palette.setColor(QPalette.Window, bg_color)
         palette.setColor(QPalette.Base, bg_color)
         palette.setColor(QPalette.Button, bg_color)
@@ -139,6 +142,8 @@ class TabManager(QWidget):
             lambda e=editor: self.cursor_position_changed.emit(e)
         )
 
+        editor.textChanged.connect(lambda: self.editor_text_changed.emit())
+
         if self.parent() and hasattr(self.parent(), "update_window_title"):
             editor.document().modificationChanged.connect(
                 self.parent().update_window_title
@@ -151,9 +156,12 @@ class TabManager(QWidget):
         if index == -1:
             return
 
-        file_path = getattr(editor, "file_path", None)
-        import os
+        current_title = self.tabs.tabText(index)
 
+        if current_title.endswith("(diff)"):
+            return
+
+        file_path = getattr(editor, "file_path", None)
         base_name = os.path.basename(file_path) if file_path else "Untitled"
 
         display_name = f"{base_name}*" if modified else base_name
@@ -213,3 +221,6 @@ class TabManager(QWidget):
         if editor:
             return getattr(editor, "file_path", None)
         return None
+
+    def tabText(self, index):
+        return self.tabs.tabText(index)

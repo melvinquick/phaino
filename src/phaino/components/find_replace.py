@@ -1,6 +1,6 @@
-from PySide6.QtWidgets import QWidget, QHBoxLayout, QLineEdit, QPushButton
 from PySide6.QtCore import Qt, Signal
 from PySide6.QtGui import QTextDocument
+from PySide6.QtWidgets import QHBoxLayout, QLineEdit, QPushButton, QWidget
 
 
 class FindReplaceWidget(QWidget):
@@ -8,8 +8,8 @@ class FindReplaceWidget(QWidget):
 
     def __init__(self, editor, parent=None):
         super().__init__(parent)
-        self.setObjectName("FindReplaceWidget")  # <-- Add this
-        self.setAttribute(Qt.WA_StyledBackground, True)  # <-- Add this
+        self.setObjectName("FindReplaceWidget")
+        self.setAttribute(Qt.WA_StyledBackground, True)
         self.editor = editor
         self.layout = QHBoxLayout(self)
         self.layout.setContentsMargins(10, 5, 10, 5)

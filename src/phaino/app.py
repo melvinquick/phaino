@@ -1,19 +1,12 @@
 import os
 import shutil
 import subprocess
-import sys
 from sys import argv, exit
 
-from PySide6.QtCore import (
-    QDir,
-    QRegularExpression,
-    QSettings,
-    Qt,
-)  # <-- Add QRegularExpression here
+from PySide6.QtCore import QDir, QRegularExpression, QSettings, Qt
 from PySide6.QtGui import (
     QAction,
     QColor,
-    QFont,
     QIcon,
     QKeySequence,
     QPainter,
@@ -58,38 +51,29 @@ style = style_file.load_qss_file()
 themes_file = YamlFileHandler("../resources/styles/themes.yaml")
 themes = themes_file.load_yaml_file()
 
-RUN_COMMANDS = {
-    ".py": [sys.executable],
-    ".sh": ["bash"],
-    ".js": ["node"],
-}
-
 PROJECT_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
 
 
 class DiffHighlighter(QSyntaxHighlighter):
-    """A simple syntax highlighter for Git diff outputs."""
-
-    def __init__(self, document):
+    def __init__(self, document, theme_tokens):
         super().__init__(document)
         self.highlighting_rules = []
 
-        # Additions (+)
+        string_color = theme_tokens.get("success-color")
+        danger_color = theme_tokens.get("danger-color")
+        function_color = theme_tokens.get("function-color")
+
         add_format = QTextCharFormat()
-        add_format.setForeground(QColor("#A3BE8C"))
-        add_format.setBackground(QColor("#2A3D2A"))
+        add_format.setForeground(QColor(string_color))
         self.highlighting_rules.append((QRegularExpression(r"^\+.*$"), add_format))
 
-        # Deletions (-)
         del_format = QTextCharFormat()
-        del_format.setForeground(QColor("#BF616A"))
-        del_format.setBackground(QColor("#3D2A2A"))
+        del_format.setForeground(QColor(danger_color))
         self.highlighting_rules.append((QRegularExpression(r"^-.*$"), del_format))
 
-        # Headers (@@)
         header_format = QTextCharFormat()
-        header_format.setForeground(QColor("#88C0D0"))
-        header_format.setFontWeight(QFont.Weight.Bold)
+        header_format.setForeground(QColor(function_color))
+        header_format.setFontWeight(700)
         self.highlighting_rules.append((QRegularExpression(r"^@@.*$"), header_format))
 
     def highlightBlock(self, text):
@@ -117,26 +101,9 @@ class Phaino(QMainWindow):
 
         self.init_ui()
 
-    def create_window_dot(self, color_hex):
-        pixmap = QPixmap(24, 24)
-        pixmap.fill(Qt.transparent)
-        painter = QPainter(pixmap)
-        painter.setRenderHint(QPainter.Antialiasing)
-        painter.setBrush(QColor(color_hex))
-        painter.setPen(Qt.NoPen)
-        painter.drawEllipse(6, 6, 12, 12)
-        painter.end()
-        return QIcon(pixmap)
-
-    def find_git_root(self, start_path):
-        current = os.path.abspath(start_path)
-        while True:
-            if os.path.isdir(os.path.join(current, ".git")):
-                return current
-            parent = os.path.dirname(current)
-            if parent == current:
-                return None
-            current = parent
+    # ==========================================
+    # INITIALIZATION
+    # ==========================================
 
     def init_ui(self):
         self.show()
@@ -160,8 +127,6 @@ class Phaino(QMainWindow):
         btn_file.setObjectName("MenuButton")
         btn_edit = QPushButton("Edit")
         btn_edit.setObjectName("MenuButton")
-        btn_git = QPushButton("Git")
-        btn_git.setObjectName("MenuButton")
         btn_help = QPushButton("Help")
         btn_help.setObjectName("MenuButton")
         btn_settings = QPushButton("Settings")
@@ -169,59 +134,54 @@ class Phaino(QMainWindow):
 
         title_layout.addWidget(btn_file)
         title_layout.addWidget(btn_edit)
-        title_layout.addWidget(btn_git)
         title_layout.addWidget(btn_help)
         title_layout.addWidget(btn_settings)
         title_layout.addStretch()
 
-        # --- Window Controls ---
-        btn_close = QPushButton()
-        btn_close.setObjectName("WindowDot")
-        btn_close.setIcon(
-            self.create_window_dot(self.theme_tokens.get("danger-color", "#E63946"))
+        self.btn_close = QPushButton()
+        self.btn_close.setObjectName("WindowDot")
+        self.btn_close.setIcon(
+            self.create_window_dot(self.theme_tokens.get("danger-color"))
         )
-        btn_close.setToolTip("Close")
-        btn_close.setFixedSize(24, 24)
-        btn_close.clicked.connect(self.close)
+        self.btn_close.setToolTip("Close")
+        self.btn_close.setFixedSize(24, 24)
+        self.btn_close.clicked.connect(self.close)
 
-        btn_min = QPushButton()
-        btn_min.setObjectName("WindowDot")
-        btn_min.setIcon(
-            self.create_window_dot(self.theme_tokens.get("warning-color", "#EBCB8B"))
+        self.btn_min = QPushButton()
+        self.btn_min.setObjectName("WindowDot")
+        self.btn_min.setIcon(
+            self.create_window_dot(self.theme_tokens.get("warning-color"))
         )
-        btn_min.setToolTip("Minimize")
-        btn_min.setFixedSize(24, 24)
-        btn_min.clicked.connect(self.showMinimized)
+        self.btn_min.setToolTip("Minimize")
+        self.btn_min.setFixedSize(24, 24)
+        self.btn_min.clicked.connect(self.showMinimized)
 
-        btn_max = QPushButton()
-        btn_max.setObjectName("WindowDot")
-        btn_max.setIcon(
-            self.create_window_dot(self.theme_tokens.get("success-color", "#A3BE8C"))
+        self.btn_max = QPushButton()
+        self.btn_max.setObjectName("WindowDot")
+        self.btn_max.setIcon(
+            self.create_window_dot(self.theme_tokens.get("success-color"))
         )
-        btn_max.setToolTip("Maximize")
-        btn_max.setFixedSize(24, 24)
-        btn_max.clicked.connect(self.toggle_maximize)
+        self.btn_max.setToolTip("Maximize")
+        self.btn_max.setFixedSize(24, 24)
+        self.btn_max.clicked.connect(self.toggle_maximize)
 
-        title_layout.addWidget(btn_close)
-        title_layout.addWidget(btn_min)
-        title_layout.addWidget(btn_max)
+        title_layout.addWidget(self.btn_close)
+        title_layout.addWidget(self.btn_min)
+        title_layout.addWidget(self.btn_max)
 
         self.main_layout.addWidget(self.title_bar)
 
         # * Setup Menus
         self.file_menu = QMenu(self)
         self.edit_menu = QMenu(self)
-        self.git_menu = QMenu(self)
         self.help_menu = QMenu(self)
         self.theme_menu = QMenu(self)
 
         btn_file.setMenu(self.file_menu)
         btn_edit.setMenu(self.edit_menu)
-        btn_git.setMenu(self.git_menu)
         btn_help.setMenu(self.help_menu)
         btn_settings.setMenu(self.theme_menu)
 
-        # --- File Menu ---
         open_action = QAction("&Open", self)
         open_action.setShortcut(QKeySequence.Open)
         open_action.triggered.connect(self.open_file)
@@ -252,7 +212,6 @@ class Phaino(QMainWindow):
         run_action.triggered.connect(self.run_file_in_terminal)
         self.file_menu.addAction(run_action)
 
-        # --- Edit Menu ---
         undo_action = QAction("&Undo", self)
         undo_action.setShortcut(QKeySequence.Undo)
         undo_action.triggered.connect(self.undo)
@@ -292,18 +251,11 @@ class Phaino(QMainWindow):
         search_action.triggered.connect(self.show_search_panel)
         self.edit_menu.addAction(search_action)
 
-        # --- Git Menu ---
-        commit_action = QAction("&Commit...", self)
-        commit_action.triggered.connect(self.git_commit)
-        self.git_menu.addAction(commit_action)
-
-        # --- Help Menu ---
         shortcuts_action = QAction("&Keyboard Shortcuts", self)
         shortcuts_action.setShortcut("F1")
         shortcuts_action.triggered.connect(self.show_shortcuts)
         self.help_menu.addAction(shortcuts_action)
 
-        # --- Settings Menu ---
         self.theme_submenu = QMenu("Theme", self)
         self.theme_menu.addMenu(self.theme_submenu)
 
@@ -315,8 +267,8 @@ class Phaino(QMainWindow):
             action.triggered.connect(lambda checked, t=theme_key: self.change_theme(t))
             self.theme_submenu.addAction(action)
 
-        # * Create widgets
-        self.file_model = GitFileSystemModel()
+        # * Create Widgets
+        self.file_model = GitFileSystemModel(self.theme_tokens)
         self.file_model.setRootPath(PROJECT_ROOT)
         self.file_model.setFilter(QDir.NoDotAndDotDot | QDir.AllEntries)
 
@@ -358,28 +310,25 @@ class Phaino(QMainWindow):
         )
         self.tabs.cursor_position_changed.connect(self.update_cursor_position)
 
-        # * Create Terminal
+        # * Create Widgets (Terminal, Find, Search, Git)
         self.terminal = TerminalWidget(self.theme_tokens, self)
 
-        # * Create Find/Replace Widget
         self.find_widget = FindReplaceWidget(None)
         self.find_widget.closed.connect(self.hide_find_widget)
 
-        # * Create Search Panel
         self.search_panel = SearchPanel()
         self.search_panel.result_clicked.connect(self.jump_to_search_result)
         self.search_panel.closed.connect(self.hide_search_panel)
 
-        # * Create Git Panel
         self.git_panel = GitPanel(self.theme_tokens)
         self.git_panel.file_selected.connect(self.load_file)
-        self.git_panel.diff_requested.connect(self.show_diff)  # Connect diff signal
+        self.git_panel.diff_requested.connect(self.show_diff)
+        self.git_panel.repo_changed.connect(self.update_git_status)
         self.git_panel.set_working_dir(PROJECT_ROOT)
 
-        # Now create the first tab
         self.tabs.create_tab()
 
-        # * Create layouts
+        # * Create Layouts
         explorer_tab = QWidget()
         explorer_layout = QVBoxLayout(explorer_tab)
         explorer_layout.setContentsMargins(0, 0, 0, 0)
@@ -389,6 +338,7 @@ class Phaino(QMainWindow):
 
         self.sidebar_tabs = QTabWidget()
         self.sidebar_tabs.setDocumentMode(True)
+        self.sidebar_tabs.tabBar().setDrawBase(False)
         self.sidebar_tabs.addTab(explorer_tab, "Explorer")
         self.sidebar_tabs.addTab(self.git_panel, "Source Control")
 
@@ -429,6 +379,80 @@ class Phaino(QMainWindow):
 
         self.update_window_title()
         self.update_cursor_position(self.tabs.current_editor())
+        self.update_git_status()
+
+    def create_window_dot(self, color_hex):
+        pixmap = QPixmap(24, 24)
+        pixmap.fill(Qt.transparent)
+        painter = QPainter(pixmap)
+        painter.setRenderHint(QPainter.Antialiasing)
+        painter.setBrush(QColor(color_hex))
+        painter.setPen(Qt.NoPen)
+        painter.drawEllipse(6, 6, 12, 12)
+        painter.end()
+        return QIcon(pixmap)
+
+    # ==========================================
+    # THEME & STATE MANAGEMENT
+    # ==========================================
+
+    def apply_theme(self, theme_name):
+        self.theme_name = theme_name if theme_name in themes else "dark"
+        self.theme_tokens = {**themes[self.theme_name], **themes["general"]}
+
+        stylesheet = style
+        for key, value in self.theme_tokens.items():
+            stylesheet = stylesheet.replace("{{" + key + "}}", str(value))
+
+        self.setStyleSheet(stylesheet)
+
+        if hasattr(self, "tabs"):
+            self.tabs.update_theme(self.theme_tokens)
+
+        if hasattr(self, "terminal"):
+            self.terminal.theme_tokens = self.theme_tokens
+            self.terminal.apply_palette()
+
+    def change_theme(self, theme_name):
+        self.apply_theme(theme_name)
+        self.settings.setValue("theme", theme_name)
+
+        self._refresh_window_dots()
+
+        if hasattr(self, "file_model"):
+            self.file_model.update_theme(self.theme_tokens)
+
+        if hasattr(self, "tabs"):
+            for i in range(self.tabs.count()):
+                editor = self.tabs.widget(i)
+                file_path = getattr(editor, "file_path", None)
+
+                if self.tabs.tabText(i).endswith("(diff)"):
+                    self.apply_diff_highlighting(editor)
+                    continue
+
+                new_highlighter = get_highlighter(
+                    file_path, editor.document(), self.theme_tokens
+                )
+
+                if hasattr(editor, "highlighter") and editor.highlighter is not None:
+                    editor.highlighter.setDocument(None)
+                    del editor.highlighter
+
+                if new_highlighter is not None:
+                    editor.highlighter = new_highlighter
+                    editor.highlighter.rehighlight()
+
+    def _refresh_window_dots(self):
+        self.btn_close.setIcon(
+            self.create_window_dot(self.theme_tokens.get("danger-color"))
+        )
+        self.btn_min.setIcon(
+            self.create_window_dot(self.theme_tokens.get("warning-color"))
+        )
+        self.btn_max.setIcon(
+            self.create_window_dot(self.theme_tokens.get("success-color"))
+        )
 
     def on_tab_changed(self):
         editor = self.tabs.current_editor()
@@ -451,6 +475,17 @@ class Phaino(QMainWindow):
             editor.escape_pressed.connect(self.hide_find_widget)
             editor.escape_pressed.connect(self.hide_search_panel)
 
+    def update_window_title(self):
+        editor = self.tabs.current_editor()
+        if not editor:
+            self.setWindowTitle("Phaino")
+            return
+
+        file_path = getattr(editor, "file_path", None)
+        filename = os.path.basename(file_path) if file_path else "Untitled"
+        modified = "*" if editor.document().isModified() else ""
+        self.setWindowTitle(f"{filename}{modified} - Phaino")
+
     def update_cursor_position(self, editor):
         if not editor or not hasattr(self, "lbl_position"):
             return
@@ -467,19 +502,65 @@ class Phaino(QMainWindow):
             lang = "TEXT"
         self.lbl_language.setText(lang)
 
+    # ==========================================
+    # WIDGET VISIBILITY
+    # ==========================================
+
+    def show_find_widget(self):
+        self.search_panel.hide()
+        self.find_widget.show()
+        self.editor_splitter.setSizes([40, 0, 560, 200])
+        self.find_widget.find_input.setFocus()
+        self.find_widget.find_input.selectAll()
+
+    def hide_find_widget(self):
+        self.editor_splitter.setSizes([0, 0, 600, 200])
+        self.find_widget.hide()
+
+    def show_search_panel(self):
+        self.find_widget.hide()
+        self.search_panel.set_root(self.file_model.rootPath())
+        self.search_panel.show()
+        self.editor_splitter.setSizes([0, 200, 400, 200])
+        self.search_panel.search_input.setFocus()
+
+    def hide_search_panel(self):
+        self.editor_splitter.setSizes([0, 0, 600, 200])
+        self.search_panel.hide()
+
+    def jump_to_search_result(self, file_path, line_num):
+        self.load_file(file_path)
+        editor = self.tabs.current_editor()
+        if editor:
+            cursor = editor.textCursor()
+            cursor.movePosition(QTextCursor.Start)
+            cursor.movePosition(QTextCursor.Down, QTextCursor.MoveAnchor, line_num - 1)
+            editor.setTextCursor(cursor)
+            editor.centerCursor()
+
+    # ==========================================
+    # GIT INTEGRATION
+    # ==========================================
+
+    def find_git_root(self, start_path):
+        current = os.path.abspath(start_path)
+        while True:
+            if os.path.isdir(os.path.join(current, ".git")):
+                return current
+            parent = os.path.dirname(current)
+            if parent == current:
+                return None
+            current = parent
+
     def update_git_status(self):
         editor = self.tabs.current_editor()
-        if not editor:
-            self.lbl_git.hide()
-            return
+        file_path = getattr(editor, "file_path", None) if editor else None
 
-        file_path = getattr(editor, "file_path", None)
-        if not file_path:
-            self.lbl_git.hide()
-            self.file_model.set_git_changes(set())
-            return
+        if file_path:
+            git_root = self.find_git_root(os.path.dirname(file_path))
+        else:
+            git_root = self.find_git_root(PROJECT_ROOT)
 
-        git_root = self.find_git_root(os.path.dirname(file_path))
         if not git_root:
             self.lbl_git.hide()
             self.file_model.set_git_changes(set())
@@ -531,16 +612,22 @@ class Phaino(QMainWindow):
             )
 
             if not diff_output:
-                try:
-                    with open(file_path, "r", encoding="utf-8") as f:
-                        diff_output = f.read()
-                except Exception:
-                    diff_output = "[Untracked file or binary file]"
+                diff_output = subprocess.check_output(
+                    ["git", "diff", "--cached", "--no-color", "--", file_path],
+                    cwd=git_root,
+                    text=True,
+                )
+
+            if not diff_output:
+                with open(file_path, "r", encoding="utf-8") as f:
+                    diff_output = f.read()
+
+            if not diff_output:
+                diff_output = "[Empty file]"
 
             base_name = os.path.basename(file_path)
             tab_name = f"{base_name} (diff)"
 
-            # 1. Check if the tab is already open
             for i in range(self.tabs.count()):
                 if self.tabs.tabText(i) == tab_name:
                     self.tabs.setCurrentIndex(i)
@@ -551,7 +638,6 @@ class Phaino(QMainWindow):
                     self.apply_diff_highlighting(editor)
                     return
 
-            # 2. Check if the current tab is an empty Untitled tab
             current_editor = self.tabs.current_editor()
             current_index = self.tabs.currentIndex()
 
@@ -565,7 +651,6 @@ class Phaino(QMainWindow):
                 editor = current_editor
                 self.tabs.setTabText(current_index, tab_name)
             else:
-                # 3. Create a new diff tab
                 editor = self.tabs.create_tab(tab_name)
                 self.tabs.setTabText(self.tabs.currentIndex(), tab_name)
 
@@ -581,89 +666,8 @@ class Phaino(QMainWindow):
             editor.highlighter.setDocument(None)
             del editor.highlighter
 
-        editor.highlighter = DiffHighlighter(editor.document())
+        editor.highlighter = DiffHighlighter(editor.document(), self.theme_tokens)
         editor.highlighter.rehighlight()
-
-    def show_find_widget(self):
-        self.search_panel.hide()
-        self.find_widget.show()
-        self.editor_splitter.setSizes([40, 0, 560, 200])
-        self.find_widget.find_input.setFocus()
-        self.find_widget.find_input.selectAll()
-
-    def hide_find_widget(self):
-        self.editor_splitter.setSizes([0, 0, 600, 200])
-        self.find_widget.hide()
-
-    def show_search_panel(self):
-        self.find_widget.hide()
-        self.search_panel.set_root(self.file_model.rootPath())
-        self.search_panel.show()
-        self.editor_splitter.setSizes([0, 200, 400, 200])
-        self.search_panel.search_input.setFocus()
-
-    def hide_search_panel(self):
-        self.editor_splitter.setSizes([0, 0, 600, 200])
-        self.search_panel.hide()
-
-    def jump_to_search_result(self, file_path, line_num):
-        self.load_file(file_path)
-        editor = self.tabs.current_editor()
-        if editor:
-            cursor = editor.textCursor()
-            cursor.movePosition(QTextCursor.Start)
-            cursor.movePosition(QTextCursor.Down, QTextCursor.MoveAnchor, line_num - 1)
-            editor.setTextCursor(cursor)
-            editor.centerCursor()
-
-    def apply_theme(self, theme_name):
-        self.theme_name = theme_name if theme_name in themes else "dark"
-        self.theme_tokens = {**themes[self.theme_name], **themes["general"]}
-
-        stylesheet = style
-        for key, value in self.theme_tokens.items():
-            stylesheet = stylesheet.replace("{{" + key + "}}", str(value))
-
-        self.setStyleSheet(stylesheet)
-
-        if hasattr(self, "tabs"):
-            self.tabs.update_theme(self.theme_tokens)
-
-        if hasattr(self, "terminal"):
-            self.terminal.theme_tokens = self.theme_tokens
-            self.terminal.apply_palette()
-
-    def change_theme(self, theme_name):
-        self.apply_theme(theme_name)
-        self.settings.setValue("theme", theme_name)
-
-        if hasattr(self, "tabs"):
-            for i in range(self.tabs.count()):
-                editor = self.tabs.widget(i)
-                file_path = getattr(editor, "file_path", None)
-
-                # Don't re-highlight diff tabs
-                if self.tabs.tabText(i).startswith("Diff:"):
-                    continue
-
-                new_highlighter = get_highlighter(
-                    file_path, editor.document(), self.theme_tokens
-                )
-
-                if hasattr(editor, "highlighter") and editor.highlighter is not None:
-                    editor.highlighter.setDocument(None)
-                    del editor.highlighter
-
-                if new_highlighter is not None:
-                    editor.highlighter = new_highlighter
-                    editor.highlighter.rehighlight()
-
-    def show_shortcuts(self):
-        dialog = ShortcutsWindow(self.theme_tokens, self)
-        dialog.exec()
-
-    def git_commit(self):
-        self.sidebar_tabs.setCurrentWidget(self.git_panel)
 
     # ==========================================
     # EXECUTION
@@ -674,9 +678,8 @@ class Phaino(QMainWindow):
         if not editor:
             return
 
-        # Don't run diffs
         current_index = self.tabs.currentIndex()
-        if self.tabs.tabText(current_index).startswith("Diff:"):
+        if self.tabs.tabText(current_index).endswith("(diff)"):
             return
 
         file_path = getattr(editor, "file_path", None)
@@ -688,17 +691,9 @@ class Phaino(QMainWindow):
         self.save_file()
 
         working_dir = os.path.dirname(file_path)
-        _, ext = os.path.splitext(file_path)
-        ext = ext.lower()
 
-        command_prefix = RUN_COMMANDS.get(ext)
-
-        if command_prefix:
-            command = command_prefix + [file_path]
-        else:
-            command = [file_path]
-
-        self.terminal.run_command(command, working_directory=working_dir)
+        # Run the file directly. This relies on the shebang line.
+        self.terminal.run_command([file_path], working_directory=working_dir)
 
     # ==========================================
     # EDIT ACTIONS
@@ -729,8 +724,12 @@ class Phaino(QMainWindow):
         if editor:
             editor.paste()
 
+    def show_shortcuts(self):
+        dialog = ShortcutsWindow(self.theme_tokens, self)
+        dialog.exec()
+
     # ==========================================
-    # FILE EXPLORER CONTEXT MENU ACTIONS
+    # FILE EXPLORER CONTEXT MENU
     # ==========================================
 
     def show_context_menu(self, pos):
@@ -966,7 +965,7 @@ class Phaino(QMainWindow):
         if not editor:
             return False
 
-        if self.tabs.tabText(self.tabs.currentIndex()).startswith("Diff:"):
+        if self.tabs.tabText(self.tabs.currentIndex()).endswith("(diff)"):
             return False
 
         file_path, _ = QFileDialog.getSaveFileName(
@@ -1002,8 +1001,7 @@ class Phaino(QMainWindow):
         file_path = getattr(editor, "file_path", None)
         filename = os.path.basename(file_path) if file_path else "Untitled"
 
-        # Diff tabs can be closed without saving
-        if self.tabs.tabText(index).startswith("Diff:"):
+        if self.tabs.tabText(index).endswith("(diff)"):
             self.tabs._force_close_tab(index)
             return
 
@@ -1027,19 +1025,8 @@ class Phaino(QMainWindow):
         elif reply == QMessageBox.Cancel:
             pass
 
-    def update_window_title(self):
-        editor = self.tabs.current_editor()
-        if not editor:
-            self.setWindowTitle("Phaino")
-            return
-
-        file_path = getattr(editor, "file_path", None)
-        filename = os.path.basename(file_path) if file_path else "Untitled"
-        modified = "*" if editor.document().isModified() else ""
-        self.setWindowTitle(f"{filename}{modified} - Phaino")
-
     # ==========================================
-    # WINDOW DRAGGING & CONTROL
+    # WINDOW CONTROL
     # ==========================================
 
     def mousePressEvent(self, event):
