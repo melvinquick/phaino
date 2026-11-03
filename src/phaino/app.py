@@ -4,20 +4,27 @@ import subprocess
 import sys
 from sys import argv, exit
 
-from PySide6.QtCore import QDir, Qt, QSettings
+from PySide6.QtCore import (
+    QDir,
+    QRegularExpression,
+    QSettings,
+    Qt,
+)  # <-- Add QRegularExpression here
 from PySide6.QtGui import (
     QAction,
-    QKeySequence,
-    QPixmap,
-    QPainter,
     QColor,
+    QFont,
     QIcon,
+    QKeySequence,
+    QPainter,
+    QPixmap,
+    QSyntaxHighlighter,
+    QTextCharFormat,
     QTextCursor,
 )
 from PySide6.QtWidgets import (
     QApplication,
     QFileDialog,
-    QFileSystemModel,
     QGridLayout,
     QHBoxLayout,
     QInputDialog,
@@ -57,8 +64,40 @@ RUN_COMMANDS = {
     ".js": ["node"],
 }
 
-# Calculate the project root dynamically (2 levels up from src/phaino/app.py)
 PROJECT_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
+
+
+class DiffHighlighter(QSyntaxHighlighter):
+    """A simple syntax highlighter for Git diff outputs."""
+
+    def __init__(self, document):
+        super().__init__(document)
+        self.highlighting_rules = []
+
+        # Additions (+)
+        add_format = QTextCharFormat()
+        add_format.setForeground(QColor("#A3BE8C"))
+        add_format.setBackground(QColor("#2A3D2A"))
+        self.highlighting_rules.append((QRegularExpression(r"^\+.*$"), add_format))
+
+        # Deletions (-)
+        del_format = QTextCharFormat()
+        del_format.setForeground(QColor("#BF616A"))
+        del_format.setBackground(QColor("#3D2A2A"))
+        self.highlighting_rules.append((QRegularExpression(r"^-.*$"), del_format))
+
+        # Headers (@@)
+        header_format = QTextCharFormat()
+        header_format.setForeground(QColor("#88C0D0"))
+        header_format.setFontWeight(QFont.Weight.Bold)
+        self.highlighting_rules.append((QRegularExpression(r"^@@.*$"), header_format))
+
+    def highlightBlock(self, text):
+        for pattern, format in self.highlighting_rules:
+            match_iterator = pattern.globalMatch(text)
+            while match_iterator.hasNext():
+                match = match_iterator.next()
+                self.setFormat(match.capturedStart(), match.capturedLength(), format)
 
 
 class Phaino(QMainWindow):
@@ -332,10 +371,9 @@ class Phaino(QMainWindow):
         self.search_panel.closed.connect(self.hide_search_panel)
 
         # * Create Git Panel
-        self.git_panel = GitPanel()
+        self.git_panel = GitPanel(self.theme_tokens)
         self.git_panel.file_selected.connect(self.load_file)
-
-        # Initialize the Git panel with the project root immediately
+        self.git_panel.diff_requested.connect(self.show_diff)  # Connect diff signal
         self.git_panel.set_working_dir(PROJECT_ROOT)
 
         # Now create the first tab
@@ -406,7 +444,6 @@ class Phaino(QMainWindow):
                 if git_root:
                     self.git_panel.set_working_dir(git_root)
 
-            # Safely disconnect previous connections
             try:
                 editor.escape_pressed.disconnect()
             except TypeError:
@@ -475,11 +512,77 @@ class Phaino(QMainWindow):
             for line in status_output.splitlines():
                 if len(line) > 3:
                     rel_path = line[3:].strip()
-                    full_path = os.path.join(git_root, rel_path)
+                    full_path = os.path.abspath(os.path.join(git_root, rel_path))
                     changed_files.add(full_path)
             self.file_model.set_git_changes(changed_files)
         except subprocess.CalledProcessError:
             pass
+
+    def show_diff(self, file_path):
+        git_root = self.find_git_root(os.path.dirname(file_path))
+        if not git_root:
+            return
+
+        try:
+            diff_output = subprocess.check_output(
+                ["git", "diff", "HEAD", "--no-color", "--", file_path],
+                cwd=git_root,
+                text=True,
+            )
+
+            if not diff_output:
+                try:
+                    with open(file_path, "r", encoding="utf-8") as f:
+                        diff_output = f.read()
+                except Exception:
+                    diff_output = "[Untracked file or binary file]"
+
+            base_name = os.path.basename(file_path)
+            tab_name = f"{base_name} (diff)"
+
+            # 1. Check if the tab is already open
+            for i in range(self.tabs.count()):
+                if self.tabs.tabText(i) == tab_name:
+                    self.tabs.setCurrentIndex(i)
+                    editor = self.tabs.widget(i)
+                    editor.setReadOnly(False)
+                    editor.setPlainText(diff_output)
+                    editor.setReadOnly(True)
+                    self.apply_diff_highlighting(editor)
+                    return
+
+            # 2. Check if the current tab is an empty Untitled tab
+            current_editor = self.tabs.current_editor()
+            current_index = self.tabs.currentIndex()
+
+            is_blank_untitled = (
+                current_editor is not None
+                and getattr(current_editor, "file_path", None) is None
+                and current_editor.toPlainText() == ""
+            )
+
+            if is_blank_untitled:
+                editor = current_editor
+                self.tabs.setTabText(current_index, tab_name)
+            else:
+                # 3. Create a new diff tab
+                editor = self.tabs.create_tab(tab_name)
+                self.tabs.setTabText(self.tabs.currentIndex(), tab_name)
+
+            editor.setPlainText(diff_output)
+            editor.setReadOnly(True)
+            self.apply_diff_highlighting(editor)
+
+        except subprocess.CalledProcessError as e:
+            print(f"Error generating diff: {e}")
+
+    def apply_diff_highlighting(self, editor):
+        if hasattr(editor, "highlighter") and editor.highlighter is not None:
+            editor.highlighter.setDocument(None)
+            del editor.highlighter
+
+        editor.highlighter = DiffHighlighter(editor.document())
+        editor.highlighter.rehighlight()
 
     def show_find_widget(self):
         self.search_panel.hide()
@@ -539,6 +642,10 @@ class Phaino(QMainWindow):
                 editor = self.tabs.widget(i)
                 file_path = getattr(editor, "file_path", None)
 
+                # Don't re-highlight diff tabs
+                if self.tabs.tabText(i).startswith("Diff:"):
+                    continue
+
                 new_highlighter = get_highlighter(
                     file_path, editor.document(), self.theme_tokens
                 )
@@ -565,6 +672,11 @@ class Phaino(QMainWindow):
     def run_file_in_terminal(self):
         editor = self.tabs.current_editor()
         if not editor:
+            return
+
+        # Don't run diffs
+        current_index = self.tabs.currentIndex()
+        if self.tabs.tabText(current_index).startswith("Diff:"):
             return
 
         file_path = getattr(editor, "file_path", None)
@@ -839,6 +951,11 @@ class Phaino(QMainWindow):
 
             editor.document().setModified(False)
             self.update_window_title()
+
+            self.update_git_status()
+            if hasattr(self, "git_panel"):
+                self.git_panel.refresh()
+
             return True
         except Exception as e:
             print(f"Error saving file: {e}")
@@ -847,6 +964,9 @@ class Phaino(QMainWindow):
     def save_file_as(self) -> bool:
         editor = self.tabs.current_editor()
         if not editor:
+            return False
+
+        if self.tabs.tabText(self.tabs.currentIndex()).startswith("Diff:"):
             return False
 
         file_path, _ = QFileDialog.getSaveFileName(
@@ -866,7 +986,14 @@ class Phaino(QMainWindow):
                 editor.highlighter = new_highlighter
                 editor.highlighter.rehighlight()
 
-            return self.save_file()
+            success = self.save_file()
+
+            if success:
+                self.refresh_tree()
+                if hasattr(self, "git_panel"):
+                    self.git_panel.refresh()
+
+            return success
 
         return False
 
@@ -874,6 +1001,11 @@ class Phaino(QMainWindow):
         editor = self.tabs.widget(index)
         file_path = getattr(editor, "file_path", None)
         filename = os.path.basename(file_path) if file_path else "Untitled"
+
+        # Diff tabs can be closed without saving
+        if self.tabs.tabText(index).startswith("Diff:"):
+            self.tabs._force_close_tab(index)
+            return
 
         msg_box = QMessageBox(self)
         msg_box.setWindowTitle("Unsaved Changes")
