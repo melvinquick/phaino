@@ -1,3 +1,7 @@
+/* =========================================
+   BASE WIDGETS
+   ========================================= */
+
 QLineEdit {
     background-color: {{widget-background-color}};
     color: {{color}};
@@ -70,6 +74,74 @@ QScrollBar::add-line:vertical, QScrollBar::sub-line:vertical {
     height: 0px; 
 }
 
+QScrollArea {
+    border: none;
+    background-color: transparent;
+}
+
+QMenu {
+    background-color: {{surface-color}};
+    color: {{color}};
+    border: 1px solid {{border}};
+}
+
+QMenu::item {
+    padding: 6px 24px;
+    background-color: transparent;
+}
+
+QMenu::item:selected {
+    background-color: {{accent-color}};
+    color: {{accent-text-color}};
+}
+
+/* =========================================
+   MAIN LAYOUT & CONTAINERS
+   ========================================= */
+
+#MainWindowContent {
+    background-color: {{background-color}};
+}
+
+QWidget#EditorContainer {
+    border-left: 1px solid {{border}};
+}
+
+QSplitter::handle {
+    background-color: {{muted-color}}; 
+    width: 4px;
+}
+
+QStatusBar {
+    background-color: {{surface-color}};
+    color: {{color}};
+    border-top: 1px solid {{border}};
+}
+
+QStatusBar QLabel {
+    color: {{color}};
+    padding: 0px 8px;
+    font-size: 12px;
+}
+
+/* =========================================
+   FILE EXPLORER (SIDEBAR)
+   ========================================= */
+
+QLineEdit#PathInput {
+    background-color: {{background-color}};
+    color: {{color}};
+    border: none;
+    border-bottom: 1px solid {{border}};
+    border-radius: 0px;
+    padding: 8px;
+    font-size: 13px;
+}
+
+QLineEdit#PathInput:focus {
+    border-bottom: 1px solid {{accent-color}};
+}
+
 QTreeView {
     background-color: {{background-color}};
     color: {{color}};
@@ -90,31 +162,16 @@ QTreeView::item:selected {
     color: {{accent-text-color}};
 }
 
-QSplitter::handle {
-    background-color: {{muted-color}}; 
-    width: 4px;
-}
+/* =========================================
+   TABS (MAIN EDITOR + SIDEBAR)
+   ========================================= */
 
-QLineEdit#PathInput {
-    background-color: {{surface-color}};
-    color: {{color}};
-    border: none;
-    border-bottom: {{border}};
-    border-radius: 0px;
-    padding: 8px;
-    font-size: 13px;
-}
-
-QLineEdit#PathInput:focus {
-    border-bottom: 1px solid {{accent-color}};
+QTabWidget {
+    background-color: {{background-color}};
 }
 
 QTabWidget::pane {
     border: none;
-    background-color: {{background-color}};
-}
-
-QTabWidget {
     background-color: {{background-color}};
 }
 
@@ -144,6 +201,26 @@ QTabBar::tab:hover:!selected {
     background-color: {{widget-background-color}};
 }
 
+#SidebarTabs > QTabBar::tab {
+    background-color: {{surface-color}};
+    color: {{muted-color}};
+    border: none;
+    border-top-left-radius: 4px;
+    border-top-right-radius: 4px;
+    padding: 6px 16px;
+    margin-top: 4px;
+    margin-right: 2px;
+}
+
+#SidebarTabs > QTabBar::tab:selected {
+    background-color: {{background-color}};
+    color: {{color}};
+}
+
+#SidebarTabs > QTabBar::tab:hover:!selected {
+    background-color: {{widget-background-color}};
+}
+
 QPushButton#NewTabButton {
     background-color: transparent;
     color: {{muted-color}};
@@ -159,6 +236,10 @@ QPushButton#NewTabButton:hover {
     background-color: {{surface-color}};
     border-radius: 4px;
 }
+
+/* =========================================
+   TERMINAL
+   ========================================= */
 
 #TerminalOutput {
     border-top: 1px solid {{border}};
@@ -179,6 +260,29 @@ QPushButton#NewTabButton:hover {
     border-top: 1px solid {{accent-color}};
 }
 
+#TerminalStopButton {
+    background-color: {{danger-color}};
+    color: white;
+    border: none;
+    font-weight: bold;
+    font-size: 12px;
+    border-radius: 4px;
+    margin: 4px;
+}
+
+#TerminalStopButton:hover {
+    background-color: {{accent-hover-color}};
+}
+
+#TerminalStopButton:disabled {
+    background-color: {{widget-background-color}};
+    color: {{muted-color}};
+}
+
+/* =========================================
+   FIND / REPLACE
+   ========================================= */
+
 #FindReplaceWidget {
     background-color: {{surface-color}};
     border-bottom: 1px solid {{border}};
@@ -196,31 +300,8 @@ QPushButton#CloseFindButton:hover {
     color: {{danger-color}};
 }
 
-/* Container Border */
-QWidget#EditorContainer {
-    border-left: 1px solid {{border}};
-}
-
-/* Themed Status Bar */
-QStatusBar {
-    background-color: {{surface-color}};
-    color: {{color}};
-    border-top: 1px solid {{border}};
-}
-
-QStatusBar QLabel {
-    color: {{color}};
-    padding: 0px 8px;
-    font-size: 12px;
-}
-
-/* Main Window Background */
-#MainWindowContent {
-    background-color: {{background-color}};
-}
-
 /* =========================================
-   CUSTOM TITLE BAR & WINDOW CONTROLS
+   CUSTOM TITLE BAR
    ========================================= */
 
 #TitleBar {
@@ -245,29 +326,11 @@ QPushButton#MenuButton::menu-indicator {
     image: none;
 }
 
-/* Window Dots */
 QPushButton#WindowDot {
     background-color: transparent;
     border: none;
     padding: 0px;
     margin-left: 8px;
-}
-
-/* Menus attached to the custom title bar buttons */
-QMenu {
-    background-color: {{surface-color}};
-    color: {{color}};
-    border: 1px solid {{border}};
-}
-
-QMenu::item {
-    padding: 6px 24px;
-    background-color: transparent;
-}
-
-QMenu::item:selected {
-    background-color: {{accent-color}};
-    color: {{accent-text-color}};
 }
 
 /* =========================================
@@ -305,52 +368,53 @@ QMenu::item:selected {
     font-size: 14px;
 }
 
-QScrollArea {
-    border: none;
-    background-color: transparent;
-}
-
 /* =========================================
-   GIT STATUS BAR
+   GIT PANEL
    ========================================= */
 
-QStatusBar QLabel#GitLabel {
-    color: {{accent-color}};
-    font-weight: bold;
-    padding: 0px 8px;
+#GitPanel QTableWidget {
+    background-color: {{surface-color}};
+    color: {{color}};
+    border: none;
+    gridline-color: transparent;
+    outline: none;
 }
 
-/* Git Panel */
-#GitPanel {
-    background-color: {{background-color}};
+#GitPanel QTableWidget::item {
+    padding: 6px 6px 6px 5px;
+    border: none;
+    color: {{color}};
+}
+
+#GitPanel QTableWidget::item:hover {
+    background-color: {{widget-background-color}};
+}
+
+#GitPanel QTableWidget::item:selected {
+    background-color: {{accent-color}};
+    color: {{accent-text-color}};
+}
+
+#GitPanel QTableWidget::item:disabled {
+    background-color: {{surface-color}};
+    color: {{muted-color}};
+    border-bottom: 1px solid {{border}};
+}
+
+#GitPanel QHeaderView::section {
+    background-color: {{surface-color}};
+    color: {{muted-color}};
+    padding: 6px;
+    border: none;
+    border-bottom: 1px solid {{border}};
+    font-weight: bold;
 }
 
 #GitBranchLabel {
-    color: {{accent-color}};
+    color: {{color}};
     font-size: 16px;
     font-weight: bold;
     padding: 5px 0px;
-}
-
-#GitPanel QLabel {
-    color: {{muted-color}};
-    font-size: 12px;
-}
-
-#GitPanel QTreeWidget {
-    background-color: {{surface-color}};
-    color: {{color}};
-    border: 1px solid {{border}};
-    border-radius: 4px;
-}
-
-#GitPanel QTreeWidget::item {
-    padding: 4px;
-}
-
-#GitPanel QTreeWidget::item:selected {
-    background-color: {{accent-color}};
-    color: {{accent-text-color}};
 }
 
 #GitPanel QTextEdit {
@@ -368,10 +432,6 @@ QStatusBar QLabel#GitLabel {
     border-radius: 4px;
 }
 
-#GitPanel QPushButton:hover {
-    background-color: {{surface-color}};
-}
-
 #GitPanel QPushButton#PrimaryButton {
     background-color: {{accent-color}};
     color: white;
@@ -380,4 +440,8 @@ QStatusBar QLabel#GitLabel {
 
 #GitPanel QPushButton#PrimaryButton:hover {
     background-color: {{accent-hover-color}};
+}
+
+#GitPanel QLabel {
+    color: {{color}};
 }
