@@ -103,7 +103,7 @@ class GitPanel(QWidget):
                 timeout=60,
             )
             if result.stderr.strip():
-                print(f"GIT STDERR ({' '.join(args)}): {result.sptderr.strip()}")
+                print(f"GIT STDERR ({' '.join(args)}): {result.stderr.strip()}")
             return result.stdout.strip()
         except subprocess.TimeoutExpired:
             print(f"GIT TIMEOUT: {' '.join(args)}")
