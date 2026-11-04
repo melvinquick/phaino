@@ -15,15 +15,31 @@
 
 You may be wondering to yourself where the name **Phaino** comes from. Phaino is short for **Phainopepla**, which is a small black bird with a striking appearance. It doesn't super closely relate to the application itself other than the intent behind the app to be as small as possible given what I want it to do.
 
-If you feel so inclined, you can see an image of a Phainopepla [here](https://imgs.search.brave.com/wy3oqtvBNOqr0gadQfW9CXg8IjPl5uISrAy1dgqx6uQ/rs:fit:860:0:0:0/g:ce/aHR0cHM6Ly9jZG4u/cHJvZC53ZWJzaXRl/LWZpbGVzLmNvbS81/ZjFiODI4Y2JmMmNm/MzNkMjIzNzUxMGEv/NjM4ZDc4NWIxMGE2/Y2VkOWI5NmYxMTMz/X1BoYWlub3BlcGxh/XyhmZW1hbGUpXygz/MzY1Nzc3NDIzMCkl/MjAoTGFyZ2UpLmpw/Zw)
+If you feel so inclined, you can see an image of a Phainopepla, as well as more information about the bird by looking [here](https://en.wikipedia.org/wiki/Phainopepla)!
 
 ## Purpose
 
 Every time I've tried to find a "lightweight IDE" for myself (kind of thinking file editor with some extra features), I was never able to find one that worked for me. Phaino was born out of a desire to finally have that editor for myself.
 
+### Features
+
+:white_check_mark: Keyboard driven file tree viewer  
+:white_check_mark: Basic Git integration / source control  
+:white_check_mark: Project saving  
+:white_check_mark: Session restore  
+:white_check_mark: Multiple themes for "all" people
+
 ## Installation
 
-Install: `curl -s https://raw.githubusercontent.com/melvinquick/phaino/main/install.py | python3 -`
+The installer sets up a dedicated venv and creates a desktop shortcut.
+
+`curl -s https://raw.githubusercontent.com/melvinquick/phaino/main/install.py | python3 -`
+
+### Supported Operating Systems
+
+:white_check_mark: Linux  
+:x: Mac  
+:x: Windows
 
 ## Useful Information
 
@@ -40,3 +56,28 @@ For example, in a Python file:
 #!/usr/bin/env python3
 print("Hello, Phaino!")
 ```
+
+Then mark the file as executable:
+
+```bash
+chmod +x script.py
+```
+
+### Formatting
+
+Phaino uses external formatters and does not bundle them. Format on save is optional and can be toggled per language under **Settings → Formatting**.
+
+> I realize formatting/formatters are very opinionated, but these are what are on offer for Phaino right now. Installation is left to the user — Phaino only invokes formatters already on your `PATH`. If one isn't found, you'll get a one-time warning in the terminal panel.
+
+| Language   | Extension       | Formatter |
+| ---------- | --------------- | --------- |
+| Python     | `.py`           | Ruff      |
+| TOML       | `.toml`         | Taplo     |
+| JSON       | `.json`         | Prettier  |
+| YAML       | `.yaml`, `.yml` | Prettier  |
+| Markdown   | `.md`           | Prettier  |
+| HTML       | `.html`, `.htm` | Prettier  |
+| JavaScript | `.js`           | Prettier  |
+| TypeScript | `.ts`           | Prettier  |
+| Rust       | `.rs`           | rustfmt   |
+| Go         | `.go`           | gofmt     |
