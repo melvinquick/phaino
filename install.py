@@ -105,7 +105,7 @@ def create_desktop_file(icon, version, python, app):
         Version={version}
         Type=Application
         Name=Phaino
-        Comment=Password generator that never leaves your machine.
+        Comment=Focused IDE for the minimalist developer.
         Exec={python} {app}
         Icon={icon}
         Terminal=false
