@@ -445,3 +445,45 @@ QPushButton#WindowDot {
 #GitPanel QLabel {
     color: {{color}};
 }
+
+/* =========================================
+   PROJECTS PANEL
+   ========================================= */
+
+#ProjectsPanel {
+    background-color: {{background-color}};
+}
+
+#ProjectsHintLabel {
+    color: {{muted-color}};
+    font-size: 12px;
+    padding: 8px;
+}
+
+#ProjectsPanel QListWidget {
+    background-color: {{background-color}};
+    color: {{color}};
+    border: none;
+    outline: none;
+}
+
+#ProjectsPanel QListWidget::item {
+    padding: 6px;
+    border: none;
+    color: {{color}};
+}
+
+#ProjectsPanel QListWidget::item:hover {
+    background-color: {{surface-color}};
+}
+
+#ProjectsPanel QListWidget::item:selected {
+    background-color: {{accent-color}};
+    color: {{accent-text-color}};
+}
+
+#ProjectsPanel QPushButton {
+    padding: 6px;
+    font-size: 13px;
+    border-radius: 4px;
+}

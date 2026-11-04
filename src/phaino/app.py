@@ -366,6 +366,12 @@ class Phaino(QMainWindow):
         self.git_panel.repo_changed.connect(self.update_git_status)
         self.git_panel.set_working_dir(self.current_root)
 
+        self.projects_panel = ProjectsPanel(self.settings, self.theme_tokens)
+        self.projects_panel.project_opened.connect(self._open_project)
+        self.projects_panel.add_current_requested.connect(
+            self._add_current_root_as_project
+        )
+
         self.tabs.create_tab()
 
         # * Create Layouts
@@ -381,7 +387,7 @@ class Phaino(QMainWindow):
         self.sidebar_tabs.tabBar().setDrawBase(False)
         self.sidebar_tabs.addTab(explorer_tab, "Explorer")
         self.sidebar_tabs.addTab(self.git_panel, "Source Control")
-
+        self.sidebar_tabs.addTab(self.projects_panel, "Projects")
         self.editor_splitter = QSplitter(Qt.Vertical)
         self.editor_splitter.addWidget(self.find_widget)
         self.editor_splitter.addWidget(self.search_panel)
@@ -807,20 +813,19 @@ class Phaino(QMainWindow):
         index = self.tree_view.indexAt(pos)
         menu = QMenu(self)
 
+        action_new_file = menu.addAction("New File")
+        action_new_folder = menu.addAction("New Folder")
+        action_save_project = menu.addAction("Save as Project")
+
         if index.isValid():
-            action_new_file = menu.addAction("New File")
-            action_new_folder = menu.addAction("New Folder")
             menu.addSeparator()
             action_rename = menu.addAction("Rename")
             action_delete = menu.addAction("Delete")
         else:
-            action_new_file = menu.addAction("New File")
-            action_new_folder = menu.addAction("New Folder")
             action_rename = None
             action_delete = None
 
         action = menu.exec(self.tree_view.viewport().mapToGlobal(pos))
-
         if action is None:
             return
 
@@ -828,6 +833,8 @@ class Phaino(QMainWindow):
             self.create_file(pos)
         elif action == action_new_folder:
             self.create_folder(pos)
+        elif action == action_save_project:
+            self._save_current_as_project(pos)
         elif action == action_rename:
             self.rename_item()
         elif action == action_delete:
@@ -1103,6 +1110,28 @@ class Phaino(QMainWindow):
             self.tabs._force_close_tab(index)
         elif reply == QMessageBox.Cancel:
             pass
+
+    def _save_current_as_project(self, pos):
+        index = self.tree_view.indexAt(pos)
+        if index.isValid():
+            path = self.file_model.filePath(index)
+            if not os.path.isdir(path):
+                path = os.path.dirname(path)
+            default_name = os.path.basename(path.rstrip("/")) or path
+        else:
+            path = self.current_root
+            default_name = os.path.basename(path.rstrip("/")) or path
+        self.projects_panel.add_project(path, default_name)
+
+    def _add_current_root_as_project(self):
+        default_name = (
+            os.path.basename(self.current_root.rstrip("/")) or self.current_root
+        )
+        self.projects_panel.add_project(self.current_root, default_name)
+
+    def _open_project(self, path):
+        self.set_tree_root(path)
+        self.sidebar_tabs.setCurrentWidget(self.sidebar_tabs.widget(0))
 
     # ==========================================
     # WINDOW CONTROL
