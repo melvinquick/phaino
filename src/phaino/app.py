@@ -39,6 +39,7 @@ from .components.formatter_factory import FORMATTER_MAP, FORMATTER_NAMES, format
 from .components.git_file_model import GitFileSystemModel
 from .components.git_panel import GitPanel
 from .components.highlighter_factory import get_highlighter
+from .components.projects_panel import ProjectsPanel
 from .components.qss_file_handler import QssFileHandler
 from .components.search_panel import SearchPanel
 from .components.shortcuts_window import ShortcutsWindow
