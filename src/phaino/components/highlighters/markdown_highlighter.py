@@ -35,10 +35,12 @@ class MarkdownHighlighter(QSyntaxHighlighter):
         )
         self.highlighting_rules.append((QRegularExpression(r"_.*?_"), italic_format))
 
-        code_format = QTextCharFormat()
-        code_format.setForeground(QColor(string_color))
-        code_format.setFontFamilies(["Fira Code", "Consolas", "monospace"])
-        self.highlighting_rules.append((QRegularExpression(r"`[^`]+`"), code_format))
+        inline_code_format = QTextCharFormat()
+        inline_code_format.setForeground(QColor(string_color))
+        inline_code_format.setFontFamilies(["Fira Code", "Consolas", "monospace"])
+        self.highlighting_rules.append(
+            (QRegularExpression(r"`[^`\n]+`"), inline_code_format)
+        )
 
         quote_format = QTextCharFormat()
         quote_format.setForeground(QColor(muted_color))
@@ -52,7 +54,52 @@ class MarkdownHighlighter(QSyntaxHighlighter):
             (QRegularExpression(r"\[.*?\]\(.*?\)"), link_format)
         )
 
+        self.fence_format = QTextCharFormat()
+        self.fence_format.setForeground(QColor(muted_color))
+
+        self.fence_lang_format = QTextCharFormat()
+        self.fence_lang_format.setForeground(QColor(function_color))
+        self.fence_lang_format.setFontWeight(QFont.Weight.Bold)
+        self.fence_lang_format.setFontFamilies(["Fira Code", "Consolas", "monospace"])
+
+        self.code_block_format = QTextCharFormat()
+        self.code_block_format.setForeground(QColor(string_color))
+        self.code_block_format.setFontFamilies(["Fira Code", "Consolas", "monospace"])
+
+    def _style_fence_line(self, text):
+        """Style a ``` fence line: dim the backticks, highlight the language tag."""
+        stripped = text.lstrip()
+        leading = len(text) - len(stripped)
+        # Apply muted color to the whole line first
+        self.setFormat(leading, len(stripped), self.fence_format)
+        # Then highlight the language tag (everything after the backticks)
+        if stripped.startswith("```"):
+            lang = stripped[3:].strip()
+            if lang:
+                lang_start = (
+                    leading + 3 + (len(stripped[3:]) - len(stripped[3:].lstrip()))
+                )
+                self.setFormat(lang_start, len(lang), self.fence_lang_format)
+
     def highlightBlock(self, text):
+        in_fence = self.previousBlockState() == 1
+        is_fence_line = text.lstrip().startswith("```")
+
+        if in_fence:
+            if is_fence_line:
+                self._style_fence_line(text)
+                self.setCurrentBlockState(0)
+                return
+            self.setFormat(0, len(text), self.code_block_format)
+            self.setCurrentBlockState(1)
+            return
+        else:
+            if is_fence_line:
+                self._style_fence_line(text)
+                self.setCurrentBlockState(1)
+                return
+            self.setCurrentBlockState(0)
+
         for pattern, format in self.highlighting_rules:
             match_iterator = pattern.globalMatch(text)
             while match_iterator.hasNext():
