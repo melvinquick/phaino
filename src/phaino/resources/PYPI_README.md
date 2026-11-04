@@ -33,7 +33,9 @@ Every time I've tried to find a "lightweight IDE" for myself (kind of thinking f
 
 The installer sets up a dedicated venv and creates a desktop shortcut.
 
-`curl -s https://raw.githubusercontent.com/melvinquick/phaino/main/install.py | python3 -`
+```
+curl -s https://raw.githubusercontent.com/melvinquick/phaino/main/install.py | python3 -
+```
 
 ### Supported Operating Systems
 
