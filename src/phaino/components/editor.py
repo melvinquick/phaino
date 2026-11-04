@@ -1,8 +1,8 @@
 import re
 
-from PySide6.QtCore import QRect, QSize, QStringListModel, Qt, Signal
+from PySide6.QtCore import QPoint, QRect, QSize, QStringListModel, Qt, Signal
 from PySide6.QtGui import QColor, QPainter, QPen, QTextCursor, QTextFormat
-from PySide6.QtWidgets import QCompleter, QPlainTextEdit, QTextEdit, QWidget
+from PySide6.QtWidgets import QCompleter, QMenu, QPlainTextEdit, QTextEdit, QWidget
 
 
 class LineNumberArea(QWidget):
@@ -31,6 +31,7 @@ class RightMargin(QWidget):
 
 class CodeEditor(QPlainTextEdit):
     escape_pressed = Signal()
+    format_requested = Signal()
 
     def __init__(self, theme_tokens, parent=None):
         super().__init__(parent)
@@ -56,6 +57,15 @@ class CodeEditor(QPlainTextEdit):
         self.completer.activated.connect(self.insert_completion)
         self.textChanged.connect(self.update_completer_model)
         self.completer.setModel(QStringListModel([]))
+
+        self.setContextMenuPolicy(Qt.CustomContextMenu)
+        self.customContextMenuRequested.connect(self._show_context_menu)
+
+    def _show_context_menu(self, pos: QPoint):
+        menu = QMenu(self)
+        format_action = menu.addAction("Format Document")
+        format_action.triggered.connect(self.format_requested.emit)
+        menu.exec(self.mapToGlobal(pos))
 
     def update_margin_widths(self, new_block_count):
         self.setViewportMargins(self.line_number_area_width(), 0, 35, 0)

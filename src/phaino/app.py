@@ -35,6 +35,7 @@ from PySide6.QtWidgets import (
 )
 
 from .components.find_replace import FindReplaceWidget
+from .components.formatter_factory import FORMATTER_MAP, FORMATTER_NAMES, format_code
 from .components.git_file_model import GitFileSystemModel
 from .components.git_panel import GitPanel
 from .components.highlighter_factory import get_highlighter
@@ -89,16 +90,20 @@ class Phaino(QMainWindow):
         super().__init__()
         self.setWindowFlags(Qt.FramelessWindowHint)
 
-        self.current_root = os.getcwd()
-
         self.settings = QSettings("Phaino", "Phaino")
         saved_theme = self.settings.value("theme", "phaino_dark")
-
         if saved_theme not in themes or saved_theme == "general":
             saved_theme = "phaino_dark"
 
         self.theme_name = saved_theme
         self.theme_tokens = {**themes[self.theme_name], **themes["general"]}
+
+        # Formatter preferences
+        self.format_on_save = self.settings.value("format_on_save", True, type=bool)
+        disabled = self.settings.value("format_disabled_languages", [], type=list)
+        self.format_disabled_languages = set(disabled)
+
+        self.current_root = os.getcwd()
         self.drag_position = None
 
         self.init_ui()
@@ -260,7 +265,6 @@ class Phaino(QMainWindow):
 
         self.theme_submenu = QMenu("Theme", self)
         self.theme_menu.addMenu(self.theme_submenu)
-
         for theme_key in themes:
             if theme_key == "general":
                 continue
@@ -268,6 +272,35 @@ class Phaino(QMainWindow):
             action = QAction(display_name, self)
             action.triggered.connect(lambda checked, t=theme_key: self.change_theme(t))
             self.theme_submenu.addAction(action)
+
+        self.theme_menu.addSeparator()
+
+        # --- Formatting submenu ---
+        self.formatting_menu = QMenu("Formatting", self)
+        self.theme_menu.addMenu(self.formatting_menu)
+
+        self.format_on_save_action = QAction("Enable Format on Save", self)
+        self.format_on_save_action.triggered.connect(self._toggle_format_on_save)
+        self.formatting_menu.addAction(self.format_on_save_action)
+
+        self.format_languages_submenu = QMenu("Languages", self.formatting_menu)
+        self.formatting_menu.addMenu(self.format_languages_submenu)
+
+        self.format_language_actions = {}
+        for ext in FORMATTER_MAP:
+            formatter_name = FORMATTER_NAMES.get(ext, "")
+            label = f"{ext} ({formatter_name})" if formatter_name else ext
+            lang_action = QAction(label, self)
+            lang_action.setCheckable(True)
+            lang_action.setChecked(ext not in self.format_disabled_languages)
+            lang_action.toggled.connect(
+                lambda checked, e=ext: self._toggle_format_language(e, checked)
+            )
+            self.format_languages_submenu.addAction(lang_action)
+            self.format_language_actions[ext] = lang_action
+
+        self._update_format_on_save_label()
+        self.format_languages_submenu.setEnabled(self.format_on_save)
 
         # * Create Widgets
         self.file_model = GitFileSystemModel(self.theme_tokens)
@@ -476,6 +509,12 @@ class Phaino(QMainWindow):
                 pass
             editor.escape_pressed.connect(self.hide_find_widget)
             editor.escape_pressed.connect(self.hide_search_panel)
+
+            try:
+                editor.format_requested.disconnect()
+            except TypeError:
+                pass
+            editor.format_requested.connect(self._on_format_requested)
 
     def update_window_title(self):
         editor = self.tabs.current_editor()
@@ -955,17 +994,16 @@ class Phaino(QMainWindow):
         if not file_path:
             return self.save_file_as()
 
+        self._format_editor(editor, force=False)
+
         try:
             with open(file_path, "w", encoding="utf-8") as file:
                 file.write(editor.toPlainText())
-
             editor.document().setModified(False)
             self.update_window_title()
-
             self.update_git_status()
             if hasattr(self, "git_panel"):
                 self.git_panel.refresh()
-
             return True
         except Exception as e:
             print(f"Error saving file: {e}")
@@ -1060,6 +1098,72 @@ class Phaino(QMainWindow):
             self.showNormal()
         else:
             self.showMaximized()
+
+    # ==========================================
+    # FORMATTING
+    # ==========================================
+
+    def _toggle_format_on_save(self, checked=None):
+        self.format_on_save = not self.format_on_save
+        self.settings.setValue("format_on_save", self.format_on_save)
+        self._update_format_on_save_label()
+        self.format_languages_submenu.setEnabled(self.format_on_save)
+
+    def _update_format_on_save_label(self):
+        state = "On" if self.format_on_save else "Off"
+        self.format_on_save_action.setText(f"Enable Format on Save ({state})")
+
+    def _toggle_format_language(self, ext, checked):
+        if checked:
+            self.format_disabled_languages.discard(ext)
+        else:
+            self.format_disabled_languages.add(ext)
+        self.settings.setValue(
+            "format_disabled_languages", list(self.format_disabled_languages)
+        )
+
+    def _format_editor(self, editor, force=False):
+        """Formats the editor's buffer in place (no save). Returns True if the
+        buffer was changed."""
+        file_path = getattr(editor, "file_path", None)
+        if not file_path:
+            return False
+
+        ext = os.path.splitext(file_path)[1].lower()
+        if not force:
+            if not self.format_on_save:
+                return False
+            if ext in self.format_disabled_languages:
+                return False
+
+        source = editor.toPlainText()
+        if not source.strip():
+            return False
+
+        formatted = format_code(
+            ext, source, on_error=lambda msg: self.terminal.append(msg + "\n")
+        )
+
+        if formatted != source:
+            cursor_pos = editor.textCursor().position()
+            editor.blockSignals(True)
+            editor.setPlainText(formatted)
+            editor.blockSignals(False)
+            cursor = editor.textCursor()
+            cursor.setPosition(min(cursor_pos, len(formatted)))
+            editor.setTextCursor(cursor)
+            return True
+
+        return False
+
+    def _format_current_editor(self):
+        editor = self.tabs.current_editor()
+        if not editor:
+            return
+        self._format_editor(editor, force=True)
+
+    def _on_format_requested(self):
+        self._format_current_editor()
 
 
 def main():

@@ -42,3 +42,23 @@ For example, in a Python file:
 #!/usr/bin/env python3
 print("Hello, Phaino!")
 ```
+
+### Formatting
+
+Phaino uses external formatters and does not bundle them. Format on save is
+optional and can be toggled per language under **Settings → Formatting**.
+
+| Language   | Extension       | Formatter |
+| ---------- | --------------- | --------- |
+| Python     | `.py`           | Ruff      |
+| TOML       | `.toml`         | Taplo     |
+| JSON       | `.json`         | Prettier  |
+| YAML       | `.yaml`, `.yml` | Prettier  |
+| Markdown   | `.md`           | Prettier  |
+| HTML       | `.html`, `.htm` | Prettier  |
+| JavaScript | `.js`           | Prettier  |
+| TypeScript | `.ts`           | Prettier  |
+| Rust       | `.rs`           | rustfmt   |
+| Go         | `.go`           | gofmt     |
+
+Installation is left to the user — Phaino only invokes the formatter that's already on your `PATH`. If a formatter isn't found, you'll get a one-time warning in the terminal panel.
