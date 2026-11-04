@@ -1,6 +1,6 @@
 [project]
 name = "phaino"
-version = "0.1.2"
+version = "0.2.0"
 description = "Focused IDE for the minimalist developer."
 readme = "src/phaino/resources/PYPI_README.md"
 authors = [{ name = "Melvin Quick", email = "melvinquick@proton.me" }]

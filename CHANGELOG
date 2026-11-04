@@ -4,7 +4,7 @@
 
 - Initial release
 
-## 0.1.2 (21 Jul 2026)
+## 0.1.2 (03 Nov 2026)
 
 ### Major Changes
 
@@ -14,4 +14,16 @@
 
 - Fixed issues with directory status not changing when traversing within app
 
-### Documentation Changes
+## 0.2.0 (04 Nov 2026)
+
+### Major Changes
+
+### Minor Changes
+
+- Added go-to line command
+- Added a formatter system that allows users to format certain file types with Phaino "best picks" of formatters (very opinionated)
+- Added a tab for saving directories as "projects"
+- Added features for keyboard driven navigation to allow the file tree in explorer to be more easily accessible via keybaord
+- Added "session restore" which will always open the last directory the user had open on close
+
+### Patch Changes
