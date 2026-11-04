@@ -258,6 +258,11 @@ class Phaino(QMainWindow):
         search_action.triggered.connect(self.show_search_panel)
         self.edit_menu.addAction(search_action)
 
+        goto_action = QAction("&Go to Line...", self)
+        goto_action.setShortcut("Ctrl+G")
+        goto_action.triggered.connect(self.go_to_line)
+        self.edit_menu.addAction(goto_action)
+
         shortcuts_action = QAction("&Keyboard Shortcuts", self)
         shortcuts_action.setShortcut("F1")
         shortcuts_action.triggered.connect(self.show_shortcuts)
@@ -578,6 +583,31 @@ class Phaino(QMainWindow):
             cursor.movePosition(QTextCursor.Down, QTextCursor.MoveAnchor, line_num - 1)
             editor.setTextCursor(cursor)
             editor.centerCursor()
+
+    def go_to_line(self):
+        editor = self.tabs.current_editor()
+        if not editor:
+            return
+
+        max_line = editor.blockCount()
+        current_line = editor.textCursor().blockNumber() + 1
+
+        line_num, ok = QInputDialog.getInt(
+            self,
+            "Go to Line",
+            f"Line number (1-{max_line}):",
+            current_line,
+            1,
+            max_line,
+            1,
+        )
+        if ok:
+            cursor = editor.textCursor()
+            cursor.movePosition(QTextCursor.Start)
+            cursor.movePosition(QTextCursor.Down, QTextCursor.MoveAnchor, line_num - 1)
+            editor.setTextCursor(cursor)
+            editor.centerCursor()
+            editor.setFocus()
 
     # ==========================================
     # GIT INTEGRATION

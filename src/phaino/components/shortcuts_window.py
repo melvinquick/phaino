@@ -111,6 +111,7 @@ class ShortcutsWindow(QDialog):
             ("Shift+Tab", "Un-indent"),
             ("", ""),
             ("Search & Navigation", None),
+            ("Ctrl+G", "Go to Line"),
             ("Ctrl+F", "Find / Replace"),
             ("Ctrl+Shift+F", "Search Across Files"),
             ("Ctrl+Space", "Trigger Auto-complete"),
