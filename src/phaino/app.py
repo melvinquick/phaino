@@ -103,7 +103,12 @@ class Phaino(QMainWindow):
         disabled = self.settings.value("format_disabled_languages", [], type=list)
         self.format_disabled_languages = set(disabled)
 
-        self.current_root = os.getcwd()
+        saved_root = self.settings.value("current_root", "", type=str)
+        if saved_root and os.path.isdir(saved_root):
+            self.current_root = saved_root
+        else:
+            self.current_root = os.getcwd()
+
         self.drag_position = None
 
         self.init_ui()
@@ -322,6 +327,7 @@ class Phaino(QMainWindow):
 
         self.tree_view.setContextMenuPolicy(Qt.CustomContextMenu)
         self.tree_view.customContextMenuRequested.connect(self.show_context_menu)
+        self.tree_view.installEventFilter(self)
 
         self.path_input = QLineEdit()
         self.path_input.setText(self.current_root)
@@ -949,6 +955,7 @@ class Phaino(QMainWindow):
 
     def set_tree_root(self, path):
         self.current_root = path
+        self.settings.setValue("current_root", path)
         self.file_model.setRootPath(path)
         self.tree_view.setRootIndex(self.file_model.index(path))
         self.path_input.setText(path)
@@ -1136,6 +1143,24 @@ class Phaino(QMainWindow):
     # ==========================================
     # WINDOW CONTROL
     # ==========================================
+
+    def eventFilter(self, obj, event):
+        if obj == self.tree_view and event.type() == event.Type.KeyPress:
+            if event.key() in (Qt.Key_Return, Qt.Key_Enter):
+                index = self.tree_view.currentIndex()
+                if index.isValid():
+                    path = self.file_model.filePath(index)
+                    if os.path.isdir(path):
+                        self.set_tree_root(path)
+                    elif os.path.isfile(path):
+                        self.load_file(path)
+                return True
+            if event.key() == Qt.Key_Backspace:
+                parent = os.path.dirname(self.current_root.rstrip("/"))
+                if parent and parent != self.current_root:
+                    self.set_tree_root(parent)
+                return True
+        return super().eventFilter(obj, event)
 
     def mousePressEvent(self, event):
         if event.button() == Qt.LeftButton:
