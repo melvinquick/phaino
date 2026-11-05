@@ -283,6 +283,11 @@ class Phaino(QMainWindow):
         prefs_action.triggered.connect(self.show_preferences)
         self.edit_menu.addAction(prefs_action)
 
+        line_numbers_action = QAction("Toggle Line &Numbers", self)
+        line_numbers_action.setShortcut("Ctrl+Shift+L")
+        line_numbers_action.triggered.connect(self.toggle_line_numbers)
+        self.edit_menu.addAction(line_numbers_action)
+
         shortcuts_action = QAction("&Keyboard Shortcuts", self)
         shortcuts_action.setShortcut("F1")
         shortcuts_action.triggered.connect(self.show_shortcuts)
@@ -963,6 +968,11 @@ class Phaino(QMainWindow):
     def toggle_line_wrap(self):
         new_value = not self.settings.value("line_wrap", False, type=bool)
         self.settings.setValue("line_wrap", new_value)
+        self._apply_editor_preferences()
+
+    def toggle_line_numbers(self):
+        new_value = not self.settings.value("show_line_numbers", True, type=bool)
+        self.settings.setValue("show_line_numbers", new_value)
         self._apply_editor_preferences()
 
     # ==========================================
