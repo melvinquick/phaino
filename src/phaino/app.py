@@ -34,6 +34,7 @@ from PySide6.QtWidgets import (
     QWidget,
 )
 
+from .components.command_palette import CommandPalette
 from .components.find_replace import FindReplaceWidget
 from .components.formatter_factory import FORMATTER_MAP, FORMATTER_NAMES, format_code
 from .components.git_file_model import GitFileSystemModel
@@ -190,6 +191,11 @@ class Phaino(QMainWindow):
         self.help_menu = QMenu(self)
         self.theme_menu = QMenu(self)
 
+        palette_action = QAction("Command Palette", self)
+        palette_action.setShortcut("Ctrl+Shift+P")
+        palette_action.triggered.connect(self.show_command_palette)
+        self.edit_menu.addAction(palette_action)
+
         btn_file.setMenu(self.file_menu)
         btn_edit.setMenu(self.edit_menu)
         btn_help.setMenu(self.help_menu)
@@ -338,12 +344,22 @@ class Phaino(QMainWindow):
 
         # * Setup Status Bar
         self.status_bar = self.statusBar()
+        self.status_bar.setSizeGripEnabled(False)
+
+        self.breadcrumb_container = QWidget()
+        self.breadcrumb_container.setObjectName("BreadcrumbContainer")
+        self.breadcrumb_layout = QHBoxLayout(self.breadcrumb_container)
+        self.breadcrumb_layout.setContentsMargins(8, 0, 8, 0)
+        self.breadcrumb_layout.setSpacing(0)
+        self.breadcrumb_layout.setAlignment(Qt.AlignLeft | Qt.AlignVCenter)
+
         self.lbl_git = QLabel("")
         self.lbl_git.setObjectName("GitLabel")
         self.lbl_git.hide()
         self.lbl_position = QLabel("Ln 1, Col 1")
         self.lbl_language = QLabel("Plain Text")
 
+        self.status_bar.addPermanentWidget(self.breadcrumb_container, 1)
         self.status_bar.addPermanentWidget(self.lbl_git)
         self.status_bar.addPermanentWidget(self.lbl_position)
         self.status_bar.addPermanentWidget(self.lbl_language)
@@ -533,6 +549,12 @@ class Phaino(QMainWindow):
             except TypeError:
                 pass
             editor.format_requested.connect(self._on_format_requested)
+            if file_path and not self.tabs.tabText(self.tabs.currentIndex()).endswith(
+                "(diff)"
+            ):
+                self._update_breadcrumbs(file_path)
+            else:
+                self._update_breadcrumbs(None)
 
     def update_window_title(self):
         editor = self.tabs.current_editor()
@@ -803,14 +825,42 @@ class Phaino(QMainWindow):
         if editor:
             editor.copy()
 
-    def paste(self):
+    def paste(self, text=None):
         editor = self.tabs.current_editor()
-        if editor:
+        if not editor:
+            return
+        if text is None:
             editor.paste()
+        else:
+            editor.insertPlainText(text)
 
     def show_shortcuts(self):
         dialog = ShortcutsWindow(self.theme_tokens, self)
         dialog.exec()
+
+    def show_command_palette(self):
+        self._palette_clipboard_text = QApplication.clipboard().text()
+        if not hasattr(self, "command_palette"):
+            self.command_palette = CommandPalette(
+                self._command_palette_focus_target, self
+            )
+            self.command_palette.paste_requested.connect(self._paste_from_palette)
+        actions = []
+        for menu in (self.file_menu, self.edit_menu, self.theme_menu):
+            actions.extend(menu.actions())
+        self.command_palette.populate(actions)
+        self.command_palette.show()
+        self.command_palette.raise_()
+        self.command_palette.activateWindow()
+
+    def _command_palette_focus_target(self):
+        return self.tabs.current_editor()
+
+    def _paste_from_palette(self):
+        editor = self.tabs.current_editor()
+        if editor:
+            editor.setFocus()
+            editor.insertPlainText(self._palette_clipboard_text)
 
     # ==========================================
     # FILE EXPLORER CONTEXT MENU
@@ -969,6 +1019,16 @@ class Phaino(QMainWindow):
 
         self.update_git_status()
 
+        editor = self.tabs.current_editor()
+        if editor:
+            file_path = getattr(editor, "file_path", None)
+            if file_path and not self.tabs.tabText(self.tabs.currentIndex()).endswith(
+                "(diff)"
+            ):
+                self._update_breadcrumbs(file_path)
+            else:
+                self._update_breadcrumbs(None)
+
     def open_file_from_tree(self, index):
         file_path = self.file_model.filePath(index)
         if os.path.isfile(file_path):
@@ -1026,6 +1086,8 @@ class Phaino(QMainWindow):
             editor.document().setModified(False)
             editor.document().clearUndoRedoStacks()
             self.update_window_title()
+            if self.tabs.currentIndex() >= 0:
+                self._update_breadcrumbs(file_path)
 
         except Exception as e:
             print(f"Error opening file: {e}")
@@ -1140,6 +1202,54 @@ class Phaino(QMainWindow):
     def _open_project(self, path):
         self.set_tree_root(path)
         self.sidebar_tabs.setCurrentWidget(self.sidebar_tabs.widget(0))
+
+    def _highlight_in_explorer(self, path):
+        self.sidebar_tabs.setCurrentWidget(self.sidebar_tabs.widget(0))
+        index = self.file_model.index(path)
+        if not index.isValid():
+            return
+        self.tree_view.setCurrentIndex(index)
+        self.tree_view.scrollTo(index)
+        self.tree_view.setFocus()
+
+    def _update_breadcrumbs(self, file_path):
+        while self.breadcrumb_layout.count():
+            item = self.breadcrumb_layout.takeAt(0)
+            widget = item.widget()
+            if widget:
+                widget.deleteLater()
+
+        if not file_path or not self.current_root:
+            return
+
+        try:
+            rel_path = os.path.relpath(file_path, self.current_root)
+        except ValueError:
+            return
+
+        if rel_path.startswith(".."):
+            return
+
+        parts = rel_path.split(os.sep)
+        num_parts = len(parts)
+
+        for i, part in enumerate(parts):
+            is_last = i == num_parts - 1
+            dir_path = os.path.join(self.current_root, *parts[: i + 1])
+            target_path = file_path if is_last else dir_path
+
+            btn = QPushButton(part)
+            btn.setObjectName("BreadcrumbFile" if is_last else "BreadcrumbSegment")
+            btn.setCursor(Qt.PointingHandCursor)
+            btn.clicked.connect(
+                lambda checked, p=target_path: self._highlight_in_explorer(p)
+            )
+            self.breadcrumb_layout.addWidget(btn)
+
+            if not is_last:
+                sep = QLabel("›")
+                sep.setObjectName("BreadcrumbSeparator")
+                self.breadcrumb_layout.addWidget(sep)
 
     # ==========================================
     # WINDOW CONTROL

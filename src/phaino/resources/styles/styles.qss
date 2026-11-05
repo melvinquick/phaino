@@ -487,3 +487,87 @@ QPushButton#WindowDot {
     font-size: 13px;
     border-radius: 4px;
 }
+
+/* =========================================
+   COMMAND PALETTE
+   ========================================= */
+
+#CommandPalette {
+    background-color: {{background-color}};
+}
+
+#CommandPalette QLineEdit {
+    background-color: {{surface-color}};
+    color: {{color}};
+    border: 1px solid {{accent-color}};
+    border-radius: 4px;
+    padding: 8px;
+    font-size: 14px;
+}
+
+#CommandPalette QListWidget {
+    background-color: {{surface-color}};
+    color: {{color}};
+    border: 1px solid {{border}};
+    border-radius: 4px;
+    outline: none;
+}
+
+#CommandPalette QListWidget::item {
+    padding: 6px;
+    border: none;
+    color: {{color}};
+}
+
+#CommandPalette QListWidget::item:hover {
+    background-color: {{widget-background-color}};
+}
+
+#CommandPalette QListWidget::item:selected {
+    background-color: {{accent-color}};
+    color: {{accent-text-color}};
+}
+
+#CommandPaletteHint {
+    color: {{muted-color}};
+    font-size: 11px;
+}
+
+/* =========================================
+   BREADCRUMBS IN STATUS BAR
+   ========================================= */
+
+#BreadcrumbContainer {
+    background-color: transparent;
+}
+
+QPushButton#BreadcrumbSegment {
+    background-color: transparent;
+    color: {{muted-color}};
+    border: none;
+    padding: 0px 4px;
+    font-size: 12px;
+}
+
+QPushButton#BreadcrumbSegment:hover {
+    color: {{color}};
+    text-decoration: underline;
+}
+
+QPushButton#BreadcrumbFile {
+    background-color: transparent;
+    color: {{color}};
+    border: none;
+    padding: 0px 4px;
+    font-size: 12px;
+}
+
+QPushButton#BreadcrumbFile:hover {
+    text-decoration: underline;
+}
+
+QLabel#BreadcrumbSeparator {
+    color: {{muted-color}};
+    font-size: 12px;
+    padding: 0px 1px;
+}
