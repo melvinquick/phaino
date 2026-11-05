@@ -141,7 +141,7 @@ class Phaino(QMainWindow):
         btn_edit.setObjectName("MenuButton")
         btn_help = QPushButton("Help")
         btn_help.setObjectName("MenuButton")
-        btn_settings = QPushButton("Settings")
+        btn_settings = QPushButton("Preferences")
         btn_settings.setObjectName("MenuButton")
 
         title_layout.addWidget(btn_file)
@@ -192,7 +192,7 @@ class Phaino(QMainWindow):
         btn_file.setMenu(self.file_menu)
         btn_edit.setMenu(self.edit_menu)
         btn_help.setMenu(self.help_menu)
-        btn_settings.setMenu(self.theme_menu)
+        btn_settings.clicked.connect(self.show_preferences)
 
         open_action = QAction("&Open", self)
         open_action.setShortcut(QKeySequence.Open)
@@ -278,28 +278,15 @@ class Phaino(QMainWindow):
         palette_action.triggered.connect(self.show_command_palette)
         self.edit_menu.addAction(palette_action)
 
+        prefs_action = QAction("Preferences", self)
+        prefs_action.setShortcut("Ctrl+,")
+        prefs_action.triggered.connect(self.show_preferences)
+        self.edit_menu.addAction(prefs_action)
+
         shortcuts_action = QAction("&Keyboard Shortcuts", self)
         shortcuts_action.setShortcut("F1")
         shortcuts_action.triggered.connect(self.show_shortcuts)
         self.help_menu.addAction(shortcuts_action)
-
-        # --- Settings Menu ---
-        self.theme_submenu = QMenu("Theme", self)
-        self.theme_menu.addMenu(self.theme_submenu)
-        for theme_key in themes:
-            if theme_key == "general":
-                continue
-            display_name = theme_key.replace("_", " ").title()
-            action = QAction(display_name, self)
-            action.triggered.connect(lambda checked, t=theme_key: self.change_theme(t))
-            self.theme_submenu.addAction(action)
-
-        self.theme_menu.addSeparator()
-
-        prefs_action = QAction("Preferences...", self)
-        prefs_action.setShortcut("Ctrl+,")
-        prefs_action.triggered.connect(self.show_preferences)
-        self.theme_menu.addAction(prefs_action)
 
         # * Create Widgets
         self.file_model = GitFileSystemModel(self.theme_tokens)
@@ -692,7 +679,7 @@ class Phaino(QMainWindow):
             )
             self.command_palette.paste_requested.connect(self._paste_from_palette)
         actions = []
-        for menu in (self.file_menu, self.edit_menu, self.theme_menu):
+        for menu in (self.file_menu, self.edit_menu, self.help_menu):
             actions.extend(menu.actions())
         self.command_palette.populate(actions)
         self.command_palette.show()
