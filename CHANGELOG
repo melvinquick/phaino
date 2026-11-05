@@ -2,28 +2,49 @@
 
 ## 0.1.1 (03 Nov 2026)
 
+### New Features
+
 - Initial release
 
 ## 0.1.2 (03 Nov 2026)
 
-### Major Changes
-
-### Minor Changes
-
-### Patch Changes
+### Bug Fixes
 
 - Fixed issues with directory status not changing when traversing within app
 
 ## 0.2.0 (04 Nov 2026)
 
-### Major Changes
-
-### Minor Changes
+### New Features
 
 - Added go-to line command
 - Added a formatter system that allows users to format certain file types with Phaino "best picks" of formatters (very opinionated)
 - Added a tab for saving directories as "projects"
-- Added features for keyboard driven navigation to allow the file tree in explorer to be more easily accessible via keybaord
+- Added features for keyboard driven navigation to allow the file tree in explorer to be more easily accessible via keyboard
 - Added "session restore" which will always open the last directory the user had open on close
 
-### Patch Changes
+## 0.3.0 (05 Nov 2026)
+
+### New Features
+
+- Added a command palette (`Ctrl+Shift+P`) for quick access to any action in the app
+- Added search and replace across files with per-file review, skipping files that have unsaved changes
+
+### Improvements
+
+- Moved breadcrumbs to the status bar to show the current file's path relative to the project root
+- Replaced the Settings menu with a unified Preferences dialog consolidating theme, formatting, editor, and appearance settings
+- Added a line wrapping toggle (`Alt+Z`) and a line numbers toggle (`Ctrl+Shift+L`)
+- Added a trailing whitespace indicator that can be enabled in Preferences
+- Added "Open in Terminal" to the Explorer context menu for quickly opening a shell in the selected folder
+- Added a Recent files list (File → Recent) showing the last 10 opened files
+- Added per-language toggles for format on save, configurable in Preferences
+- Unified checkbox styling across the Search panel and Preferences dialog
+
+### Bug Fixes
+
+- Fixed the status bar Git indicator not reflecting the repository of the currently active file
+- Fixed the file explorer not highlighting modified files until the first file modification event
+- Fixed the Git panel not refreshing after commit, undo commit, push, or pull operations
+- Fixed the line wrap toggle jumping the cursor to the end of the file
+- Fixed the terminal Stop button being silently unusable when a process failed to start
+- Fixed the save action silently skipping formatting when the file was open with unsaved changes
