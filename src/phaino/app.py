@@ -234,6 +234,11 @@ class Phaino(QMainWindow):
         redo_action.triggered.connect(self.redo)
         self.edit_menu.addAction(redo_action)
 
+        wrap_action = QAction("Toggle Line &Wrap", self)
+        wrap_action.setShortcut("Alt+Z")
+        wrap_action.triggered.connect(self.toggle_line_wrap)
+        self.edit_menu.addAction(wrap_action)
+
         self.edit_menu.addSeparator()
 
         cut_action = QAction("Cu&t", self)
@@ -727,7 +732,9 @@ class Phaino(QMainWindow):
         for i in range(self.tabs.count()):
             editor = self.tabs.widget(i)
             if hasattr(editor, "update_editor_preferences"):
-                editor.update_editor_preferences(font_size, show_numbers, wrap)
+                editor.update_editor_preferences(
+                    font_size, show_numbers, wrap, show_trailing_ws
+                )
 
     # ==========================================
     # FORMATTING
@@ -962,6 +969,11 @@ class Phaino(QMainWindow):
     def show_shortcuts(self):
         dialog = ShortcutsWindow(self.theme_tokens, self)
         dialog.exec()
+
+    def toggle_line_wrap(self):
+        new_value = not self.settings.value("line_wrap", False, type=bool)
+        self.settings.setValue("line_wrap", new_value)
+        self._apply_editor_preferences()
 
     # ==========================================
     # FILE EXPLORER CONTEXT MENU

@@ -1,7 +1,15 @@
 import re
 
 from PySide6.QtCore import QPoint, QRect, QSize, QStringListModel, Qt, Signal
-from PySide6.QtGui import QColor, QPainter, QPen, QTextCursor, QTextFormat
+from PySide6.QtGui import (
+    QColor,
+    QFont,
+    QPainter,
+    QPen,
+    QTextCharFormat,
+    QTextCursor,
+    QTextFormat,
+)
 from PySide6.QtWidgets import QCompleter, QMenu, QPlainTextEdit, QTextEdit, QWidget
 
 
@@ -68,6 +76,78 @@ class CodeEditor(QPlainTextEdit):
         format_action = menu.addAction("Format Document")
         format_action.triggered.connect(self.format_requested.emit)
         menu.exec(self.mapToGlobal(pos))
+
+    def update_editor_preferences(
+        self, font_size, show_line_numbers, line_wrap, show_trailing_ws=False
+    ):
+        font = QFont("Fira Code", font_size)
+        self.setFont(font)
+
+        self.line_number_area.setVisible(show_line_numbers)
+        if show_line_numbers:
+            self.setViewportMargins(self.line_number_area_width(), 0, 35, 0)
+        else:
+            self.setViewportMargins(0, 0, 35, 0)
+
+        saved_cursor = self.textCursor().position()
+        saved_vscroll = self.verticalScrollBar().value()
+        saved_hscroll = self.horizontalScrollBar().value()
+
+        if line_wrap:
+            self.setLineWrapMode(QPlainTextEdit.WidgetWidth)
+        else:
+            self.setLineWrapMode(QPlainTextEdit.NoWrap)
+
+        cursor = self.textCursor()
+        cursor.setPosition(min(saved_cursor, len(self.toPlainText())))
+        self.setTextCursor(cursor)
+        self.verticalScrollBar().setValue(saved_vscroll)
+        self.horizontalScrollBar().setValue(saved_hscroll)
+
+        self.show_trailing_ws = show_trailing_ws
+        self._update_trailing_ws_highlight()
+
+    def _update_trailing_ws_highlight(self):
+        extra_selections = []
+
+        if not self.isReadOnly():
+            line_selection = QTextEdit.ExtraSelection()
+            line_color = QColor(self.surface_color)
+            line_selection.format.setBackground(line_color)
+            line_selection.format.setProperty(
+                QTextFormat.Property.FullWidthSelection, True
+            )
+            line_selection.cursor = self.textCursor()
+            line_selection.cursor.clearSelection()
+            extra_selections.append(line_selection)
+
+        if getattr(self, "show_trailing_ws", False):
+            block = self.document().firstBlock()
+            while block.isValid():
+                text = block.text()
+                stripped_len = len(text.rstrip())
+                full_len = len(text)
+                if stripped_len < full_len:
+                    selection = QTextEdit.ExtraSelection()
+                    cursor = QTextCursor(block)
+                    cursor.setPosition(block.position() + stripped_len)
+                    cursor.setPosition(
+                        block.position() + full_len,
+                        QTextCursor.KeepAnchor,
+                    )
+                    selection.cursor = cursor
+                    fmt = QTextCharFormat()
+                    bg = QColor(self.theme_tokens.get("danger-color"))
+                    bg.setAlpha(180)
+                    fmt.setBackground(bg)
+                    selection.format = fmt
+                    extra_selections.append(selection)
+                block = block.next()
+
+        self.setExtraSelections(extra_selections)
+
+    def highlight_current_line(self):
+        self._update_trailing_ws_highlight()
 
     def update_margin_widths(self, new_block_count):
         self.setViewportMargins(self.line_number_area_width(), 0, 35, 0)
