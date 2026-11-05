@@ -23,12 +23,12 @@ Every time I've tried to find a "lightweight IDE" for myself (kind of thinking f
 
 ### Features
 
-:white_check_mark: Search and replace across files with per-file review
-:white_check_mark: Integrated "terminal" for running scripts
-:white_check_mark: Basic Git integration with diff viewer
-:white_check_mark: Project saving and session restore
-:white_check_mark: Syntax highlighting for various languages
-:white_check_mark: Formatting for various languages (see [Formatting](#formatting) below)
+:white_check_mark: Search and replace across files with per-file review  
+:white_check_mark: Integrated "terminal" for running scripts  
+:white_check_mark: Basic Git integration with diff viewer  
+:white_check_mark: Project saving and session restore  
+:white_check_mark: Syntax highlighting for various languages  
+:white_check_mark: Formatting for various languages (see [Formatting](#formatting) below)  
 :white_check_mark: Multiple themes for accessibility
 
 ## Installation

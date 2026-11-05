@@ -48,3 +48,9 @@
 - Fixed the line wrap toggle jumping the cursor to the end of the file
 - Fixed the terminal Stop button being silently unusable when a process failed to start
 - Fixed the save action silently skipping formatting when the file was open with unsaved changes
+
+## 0.3.1 (05 Nov 2026)
+
+### Bug Fixes
+
+- Fixing issue in README with feature list entries not being on new lines
