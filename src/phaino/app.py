@@ -986,6 +986,7 @@ class Phaino(QMainWindow):
         action_new_file = menu.addAction("New File")
         action_new_folder = menu.addAction("New Folder")
         action_save_project = menu.addAction("Save as Project")
+        action_open_terminal = menu.addAction("Open in Terminal")
 
         if index.isValid():
             menu.addSeparator()
@@ -1005,6 +1006,8 @@ class Phaino(QMainWindow):
             self.create_folder(pos)
         elif action == action_save_project:
             self._save_current_as_project(pos)
+        elif action == action_open_terminal:
+            self._open_terminal_at(pos)
         elif action == action_rename:
             self.rename_item()
         elif action == action_delete:
@@ -1320,6 +1323,59 @@ class Phaino(QMainWindow):
             self.tabs._force_close_tab(index)
         elif reply == QMessageBox.Cancel:
             pass
+
+    def _open_terminal_at(self, pos):
+        index = self.tree_view.indexAt(pos)
+        if index.isValid():
+            path = self.file_model.filePath(index)
+            if not os.path.isdir(path):
+                path = os.path.dirname(path)
+        else:
+            path = self.current_root
+        self._open_terminal_here(path)
+
+    def _open_terminal_here(self, path):
+        candidates = []
+        env_terminal = os.environ.get("TERMINAL")
+        if env_terminal:
+            candidates.append(env_terminal)
+        candidates.extend(
+            [
+                "x-terminal-emulator",
+                "kitty",
+                "alacritty",
+                "foot",
+                "wezterm",
+                "gnome-terminal",
+                "konsole",
+                "xfce4-terminal",
+                "xterm",
+            ]
+        )
+
+        for name in candidates:
+            executable = shutil.which(name)
+            if executable:
+                try:
+                    if name == "gnome-terminal":
+                        subprocess.Popen([executable, "--working-directory", path])
+                    elif name == "konsole":
+                        subprocess.Popen([executable, "--workdir", path])
+                    elif name == "xfce4-terminal":
+                        subprocess.Popen([executable, "--working-directory", path])
+                    elif name == "wezterm":
+                        subprocess.Popen([executable, "start", "--cwd", path])
+                    else:
+                        subprocess.Popen([executable], cwd=path)
+                    return
+                except Exception as e:
+                    print(f"Failed to launch {name}: {e}")
+                    continue
+
+        self.terminal.append(
+            "\n[Terminal] No terminal emulator found on PATH. "
+            "Set $TERMINAL to your preferred terminal.\n"
+        )
 
     # ==========================================
     # WINDOW CONTROL
