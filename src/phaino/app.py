@@ -728,6 +728,9 @@ class Phaino(QMainWindow):
         font_size = self.settings.value("font_size", 15, type=int)
         show_numbers = self.settings.value("show_line_numbers", True, type=bool)
         wrap = self.settings.value("line_wrap", False, type=bool)
+        show_trailing_ws = self.settings.value(
+            "show_trailing_whitespace", False, type=bool
+        )
 
         for i in range(self.tabs.count()):
             editor = self.tabs.widget(i)

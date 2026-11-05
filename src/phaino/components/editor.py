@@ -48,13 +48,15 @@ class CodeEditor(QPlainTextEdit):
         self.bg_color = self.theme_tokens.get("background-color")
         self.muted_color = self.theme_tokens.get("muted-color")
         self.surface_color = self.theme_tokens.get("surface-color")
+        self.show_trailing_ws = False
 
         self.line_number_area = LineNumberArea(self)
         self.right_margin = RightMargin(self)
 
         self.blockCountChanged.connect(self.update_margin_widths)
         self.updateRequest.connect(self.update_margins)
-        self.cursorPositionChanged.connect(self.highlight_current_line)
+        self.cursorPositionChanged.connect(self._update_trailing_ws_highlight)
+        self.textChanged.connect(self._update_trailing_ws_highlight)
 
         self.update_margin_widths(0)
 
@@ -69,7 +71,7 @@ class CodeEditor(QPlainTextEdit):
         self.setContextMenuPolicy(Qt.CustomContextMenu)
         self.customContextMenuRequested.connect(self._show_context_menu)
 
-        self.update_editor_preferences(15, True, False)
+        self.update_editor_preferences(15, True, False, False)
 
     def _show_context_menu(self, pos: QPoint):
         menu = QMenu(self)
@@ -213,9 +215,13 @@ class CodeEditor(QPlainTextEdit):
         tc = self.textCursor()
         tc.select(tc.SelectionType.WordUnderCursor)
         current_word = tc.selectedText()
-        words = {
-            w for w in re.findall(r"\b\w+\b", text) if len(w) > 2 and w != current_word
-        }
+        words = set(
+            [
+                w
+                for w in re.findall(r"\b\w+\b", text)
+                if len(w) > 2 and w != current_word
+            ]
+        )
         if hasattr(self, "highlighter") and self.highlighter is not None:
             if hasattr(self.highlighter, "keywords"):
                 words.update(self.highlighter.keywords)
@@ -353,18 +359,6 @@ class CodeEditor(QPlainTextEdit):
             bottom = top + round(self.blockBoundingRect(block).height())
             block_number += 1
 
-    def highlight_current_line(self):
-        extra_selections = []
-        if not self.isReadOnly():
-            selection = QTextEdit.ExtraSelection()
-            line_color = QColor(self.surface_color)
-            selection.format.setBackground(line_color)
-            selection.format.setProperty(QTextFormat.Property.FullWidthSelection, True)
-            selection.cursor = self.textCursor()
-            selection.cursor.clearSelection()
-            extra_selections.append(selection)
-        self.setExtraSelections(extra_selections)
-
     def update_theme(self, theme_tokens):
         self.theme_tokens = theme_tokens
         self.bg_color = self.theme_tokens.get("background-color")
@@ -373,21 +367,4 @@ class CodeEditor(QPlainTextEdit):
 
         self.line_number_area.update()
         self.right_margin.update()
-        self.highlight_current_line()
-
-    def update_editor_preferences(self, font_size, show_line_numbers, line_wrap):
-        from PySide6.QtGui import QFont
-
-        font = QFont("Fira Code", font_size)
-        self.setFont(font)
-
-        self.line_number_area.setVisible(show_line_numbers)
-        if show_line_numbers:
-            self.setViewportMargins(self.line_number_area_width(), 0, 35, 0)
-        else:
-            self.setViewportMargins(0, 0, 35, 0)
-
-        if line_wrap:
-            self.setLineWrapMode(QPlainTextEdit.WidgetWidth)
-        else:
-            self.setLineWrapMode(QPlainTextEdit.NoWrap)
+        self._update_trailing_ws_highlight()
