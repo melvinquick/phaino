@@ -353,6 +353,7 @@ class Phaino(QMainWindow):
 
         self.search_panel = SearchPanel()
         self.search_panel.result_clicked.connect(self.jump_to_search_result)
+        self.search_panel.replace_requested.connect(self.replace_in_files)
         self.search_panel.closed.connect(self.hide_search_panel)
 
         self.git_panel = GitPanel(self.theme_tokens)
@@ -646,6 +647,82 @@ class Phaino(QMainWindow):
             cursor.movePosition(QTextCursor.Down, QTextCursor.MoveAnchor, line_num - 1)
             editor.setTextCursor(cursor)
             editor.centerCursor()
+
+    def replace_in_files(self, query, replacement, file_paths):
+        modified_count = 0
+        skipped_files = []
+
+        for file_path in file_paths:
+            open_editor = None
+            for i in range(self.tabs.count()):
+                editor = self.tabs.widget(i)
+                if getattr(editor, "file_path", None) == file_path:
+                    open_editor = editor
+                    break
+
+            if open_editor is not None:
+                if open_editor.document().isModified():
+                    skipped_files.append(file_path)
+                    continue
+            try:
+                with open(file_path, "r", encoding="utf-8") as f:
+                    content = f.read()
+
+                new_content = content.replace(query, replacement)
+                if new_content != content:
+                    with open(file_path, "w", encoding="utf-8") as f:
+                        f.write(new_content)
+                    modified_count += 1
+            except Exception as e:
+                print(f"Error replacing in {file_path}: {e}")
+
+        for i in range(self.tabs.count()):
+            editor = self.tabs.widget(i)
+            file_path = getattr(editor, "file_path", None)
+            if file_path in file_paths and editor.document().isModified() is False:
+                try:
+                    with open(file_path, "r", encoding="utf-8") as f:
+                        content = f.read()
+                    cursor_pos = editor.textCursor().position()
+                    editor.blockSignals(True)
+                    editor.setPlainText(content)
+                    editor.blockSignals(False)
+                    new_cursor = editor.textCursor()
+                    new_cursor.setPosition(min(cursor_pos, len(content)))
+                    editor.setTextCursor(new_cursor)
+                    if (
+                        hasattr(editor, "highlighter")
+                        and editor.highlighter is not None
+                    ):
+                        editor.highlighter.rehighlight()
+                except Exception as e:
+                    print(f"Error reloading {file_path}: {e}")
+
+        self.update_git_status()
+        if hasattr(self, "git_panel"):
+            self.git_panel.refresh()
+
+        if modified_count == 0 and skipped_files:
+            self.terminal.append(
+                "\n[Replace] No files were modified. All matched files are open "
+                "with unsaved changes and were skipped to protect your work.\n"
+                "Save or close the affected tabs and try again.\n"
+            )
+            for path in skipped_files:
+                self.terminal.append(f"  Skipped: {os.path.basename(path)}\n")
+            return
+
+        if modified_count > 0:
+            self.terminal.append(
+                f"\n[Replace] Replaced '{query}' in {modified_count} file(s).\n"
+            )
+
+        if skipped_files:
+            self.terminal.append(
+                f"[Replace] Skipped {len(skipped_files)} file(s) with unsaved changes:\n"
+            )
+            for path in skipped_files:
+                self.terminal.append(f"  Skipped: {os.path.basename(path)}\n")
 
     def go_to_line(self):
         editor = self.tabs.current_editor()

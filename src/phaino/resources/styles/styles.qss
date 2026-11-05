@@ -125,7 +125,46 @@ QStatusBar QLabel {
 }
 
 /* =========================================
-   FILE EXPLORER (SIDEBAR)
+   BREADCRUMBS IN STATUS BAR
+   ========================================= */
+
+#BreadcrumbContainer {
+    background-color: transparent;
+}
+
+QPushButton#BreadcrumbSegment {
+    background-color: transparent;
+    color: {{muted-color}};
+    border: none;
+    padding: 0px 4px;
+    font-size: 12px;
+}
+
+QPushButton#BreadcrumbSegment:hover {
+    color: {{color}};
+    text-decoration: underline;
+}
+
+QPushButton#BreadcrumbFile {
+    background-color: transparent;
+    color: {{color}};
+    border: none;
+    padding: 0px 4px;
+    font-size: 12px;
+}
+
+QPushButton#BreadcrumbFile:hover {
+    text-decoration: underline;
+}
+
+QLabel#BreadcrumbSeparator {
+    color: {{muted-color}};
+    font-size: 12px;
+    padding: 0px 1px;
+}
+
+/* =========================================
+   FILE EXPLORER
    ========================================= */
 
 QLineEdit#PathInput {
@@ -201,26 +240,6 @@ QTabBar::tab:hover:!selected {
     background-color: {{widget-background-color}};
 }
 
-#SidebarTabs > QTabBar::tab {
-    background-color: {{surface-color}};
-    color: {{muted-color}};
-    border: none;
-    border-top-left-radius: 4px;
-    border-top-right-radius: 4px;
-    padding: 6px 16px;
-    margin-top: 4px;
-    margin-right: 2px;
-}
-
-#SidebarTabs > QTabBar::tab:selected {
-    background-color: {{background-color}};
-    color: {{color}};
-}
-
-#SidebarTabs > QTabBar::tab:hover:!selected {
-    background-color: {{widget-background-color}};
-}
-
 QPushButton#NewTabButton {
     background-color: transparent;
     color: {{muted-color}};
@@ -262,7 +281,7 @@ QPushButton#NewTabButton:hover {
 
 #TerminalStopButton {
     background-color: {{danger-color}};
-    color: white;
+    color: {{accent-text-color}};
     border: none;
     font-weight: bold;
     font-size: 12px;
@@ -298,6 +317,185 @@ QPushButton#CloseFindButton {
 
 QPushButton#CloseFindButton:hover {
     color: {{danger-color}};
+}
+
+/* =========================================
+   SEARCH PANEL
+   ========================================= */
+
+#SearchPanel {
+    background-color: {{background-color}};
+}
+
+#SearchPanel QLineEdit {
+    background-color: {{surface-color}};
+    color: {{color}};
+    border: 1px solid {{border}};
+    border-radius: 4px;
+    padding: 6px;
+    font-size: 13px;
+}
+
+#SearchPanel QLineEdit:focus {
+    border: 1px solid {{accent-color}};
+}
+
+#SearchPanel QPushButton {
+    padding: 4px 8px;
+    font-size: 12px;
+    border-radius: 4px;
+}
+
+#SearchPanel QTreeWidget {
+    background-color: {{background-color}};
+    color: {{color}};
+    border: none;
+    outline: none;
+}
+
+#SearchPanel QTreeWidget::item {
+    padding: 3px;
+}
+
+#SearchPanel QTreeWidget::item:hover {
+    background-color: {{surface-color}};
+}
+
+#SearchPanel QTreeWidget::item:selected {
+    background-color: {{accent-color}};
+    color: {{accent-text-color}};
+}
+
+#SearchPanel QTreeWidget::indicator {
+    width: 14px;
+    height: 14px;
+    border: 1px solid {{color}};
+    border-radius: 3px;
+    background-color: transparent;
+}
+
+#SearchPanel QTreeWidget::indicator:checked {
+    border: 1px solid {{color}};
+    background-color: {{color}};
+}
+
+#SearchPanel QTreeWidget::indicator:hover {
+    border: 1px solid {{accent-color}};
+}
+
+#SearchPanel QHeaderView::section {
+    background-color: {{background-color}};
+    color: {{muted-color}};
+    padding: 4px;
+    border: none;
+    border-bottom: 1px solid {{border}};
+    font-weight: bold;
+}
+
+#SearchPanel QHeaderView {
+    background-color: {{background-color}};
+}
+
+/* =========================================
+   PREFERENCES DIALOG
+   ========================================= */
+
+#PreferencesDialog {
+    background-color: {{background-color}};
+}
+
+#PreferencesDialog QLabel {
+    color: {{color}};
+    font-size: 13px;
+}
+
+#PreferencesDialog QGroupBox {
+    color: {{color}};
+    font-weight: bold;
+    border: 1px solid {{border}};
+    border-radius: 6px;
+    margin-top: 10px;
+    padding-top: 12px;
+}
+
+#PreferencesDialog QGroupBox::title {
+    subcontrol-origin: margin;
+    left: 10px;
+    padding: 0px 5px;
+}
+
+#PreferencesDialog QComboBox,
+#PreferencesDialog QSpinBox {
+    background-color: {{widget-background-color}};
+    color: {{color}};
+    border: 1px solid {{border}};
+    border-radius: 4px;
+    padding: 4px;
+    font-size: 13px;
+}
+
+#PreferencesDialog QComboBox QAbstractItemView {
+    background-color: {{surface-color}};
+    color: {{color}};
+    selection-background-color: {{accent-color}};
+    selection-color: {{accent-text-color}};
+}
+
+#PreferencesDialog QCheckBox {
+    color: {{color}};
+    font-size: 13px;
+    spacing: 8px;
+}
+
+#PreferencesDialog QCheckBox::indicator {
+    width: 14px;
+    height: 14px;
+    border: 1px solid {{color}};
+    border-radius: 3px;
+    background-color: transparent;
+}
+
+#PreferencesDialog QCheckBox::indicator:checked {
+    border: 1px solid {{color}};
+    background-color: {{color}};
+}
+
+#PreferencesDialog QCheckBox::indicator:hover {
+    border: 1px solid {{accent-color}};
+}
+
+#PreferencesDialog QListWidget {
+    background-color: {{surface-color}};
+    color: {{color}};
+    border: 1px solid {{border}};
+    border-radius: 4px;
+}
+
+#PreferencesDialog QListWidget::item {
+    padding: 4px;
+    color: {{color}};
+}
+
+#PreferencesDialog QListWidget::item:selected {
+    background-color: {{accent-color}};
+    color: {{accent-text-color}};
+}
+
+#PreferencesDialog QListWidget::indicator {
+    width: 14px;
+    height: 14px;
+    border: 1px solid {{color}};
+    border-radius: 3px;
+    background-color: transparent;
+}
+
+#PreferencesDialog QListWidget::indicator:checked {
+    border: 1px solid {{color}};
+    background-color: {{color}};
+}
+
+#PreferencesDialog QListWidget::indicator:hover {
+    border: 1px solid {{accent-color}};
 }
 
 /* =========================================
@@ -369,6 +567,51 @@ QPushButton#WindowDot {
 }
 
 /* =========================================
+   COMMAND PALETTE
+   ========================================= */
+
+#CommandPalette {
+    background-color: {{background-color}};
+}
+
+#CommandPalette QLineEdit {
+    background-color: {{surface-color}};
+    color: {{color}};
+    border: 1px solid {{accent-color}};
+    border-radius: 4px;
+    padding: 8px;
+    font-size: 14px;
+}
+
+#CommandPalette QListWidget {
+    background-color: {{surface-color}};
+    color: {{color}};
+    border: 1px solid {{border}};
+    border-radius: 4px;
+    outline: none;
+}
+
+#CommandPalette QListWidget::item {
+    padding: 6px;
+    border: none;
+    color: {{color}};
+}
+
+#CommandPalette QListWidget::item:hover {
+    background-color: {{widget-background-color}};
+}
+
+#CommandPalette QListWidget::item:selected {
+    background-color: {{accent-color}};
+    color: {{accent-text-color}};
+}
+
+#CommandPaletteHint {
+    color: {{muted-color}};
+    font-size: 11px;
+}
+
+/* =========================================
    GIT PANEL
    ========================================= */
 
@@ -434,16 +677,12 @@ QPushButton#WindowDot {
 
 #GitPanel QPushButton#PrimaryButton {
     background-color: {{accent-color}};
-    color: white;
+    color: {{accent-text-color}};
     font-weight: bold;
 }
 
 #GitPanel QPushButton#PrimaryButton:hover {
     background-color: {{accent-hover-color}};
-}
-
-#GitPanel QLabel {
-    color: {{color}};
 }
 
 /* =========================================
@@ -486,156 +725,4 @@ QPushButton#WindowDot {
     padding: 6px;
     font-size: 13px;
     border-radius: 4px;
-}
-
-/* =========================================
-   COMMAND PALETTE
-   ========================================= */
-
-#CommandPalette {
-    background-color: {{background-color}};
-}
-
-#CommandPalette QLineEdit {
-    background-color: {{surface-color}};
-    color: {{color}};
-    border: 1px solid {{accent-color}};
-    border-radius: 4px;
-    padding: 8px;
-    font-size: 14px;
-}
-
-#CommandPalette QListWidget {
-    background-color: {{surface-color}};
-    color: {{color}};
-    border: 1px solid {{border}};
-    border-radius: 4px;
-    outline: none;
-}
-
-#CommandPalette QListWidget::item {
-    padding: 6px;
-    border: none;
-    color: {{color}};
-}
-
-#CommandPalette QListWidget::item:hover {
-    background-color: {{widget-background-color}};
-}
-
-#CommandPalette QListWidget::item:selected {
-    background-color: {{accent-color}};
-    color: {{accent-text-color}};
-}
-
-#CommandPaletteHint {
-    color: {{muted-color}};
-    font-size: 11px;
-}
-
-/* =========================================
-   BREADCRUMBS IN STATUS BAR
-   ========================================= */
-
-#BreadcrumbContainer {
-    background-color: transparent;
-}
-
-QPushButton#BreadcrumbSegment {
-    background-color: transparent;
-    color: {{muted-color}};
-    border: none;
-    padding: 0px 4px;
-    font-size: 12px;
-}
-
-QPushButton#BreadcrumbSegment:hover {
-    color: {{color}};
-    text-decoration: underline;
-}
-
-QPushButton#BreadcrumbFile {
-    background-color: transparent;
-    color: {{color}};
-    border: none;
-    padding: 0px 4px;
-    font-size: 12px;
-}
-
-QPushButton#BreadcrumbFile:hover {
-    text-decoration: underline;
-}
-
-QLabel#BreadcrumbSeparator {
-    color: {{muted-color}};
-    font-size: 12px;
-    padding: 0px 1px;
-}
-
-/* =========================================
-   PREFERENCES DIALOG
-   ========================================= */
-
-#PreferencesDialog {
-    background-color: {{background-color}};
-}
-
-#PreferencesDialog QLabel {
-    color: {{color}};
-    font-size: 13px;
-}
-
-#PreferencesDialog QGroupBox {
-    color: {{color}};
-    font-weight: bold;
-    border: 1px solid {{border}};
-    border-radius: 6px;
-    margin-top: 10px;
-    padding-top: 12px;
-}
-
-#PreferencesDialog QGroupBox::title {
-    subcontrol-origin: margin;
-    left: 10px;
-    padding: 0px 5px;
-}
-
-#PreferencesDialog QComboBox,
-#PreferencesDialog QSpinBox {
-    background-color: {{widget-background-color}};
-    color: {{color}};
-    border: 1px solid {{border}};
-    border-radius: 4px;
-    padding: 4px;
-    font-size: 13px;
-}
-
-#PreferencesDialog QComboBox QAbstractItemView {
-    background-color: {{surface-color}};
-    color: {{color}};
-    selection-background-color: {{accent-color}};
-    selection-color: {{accent-text-color}};
-}
-
-#PreferencesDialog QCheckBox {
-    color: {{color}};
-    font-size: 13px;
-    spacing: 8px;
-}
-
-#PreferencesDialog QListWidget {
-    background-color: {{surface-color}};
-    color: {{color}};
-    border: 1px solid {{border}};
-    border-radius: 4px;
-}
-
-#PreferencesDialog QListWidget::item {
-    padding: 4px;
-    color: {{color}};
-}
-
-#PreferencesDialog QListWidget::item:selected {
-    background-color: {{accent-color}};
-    color: {{accent-text-color}};
 }
