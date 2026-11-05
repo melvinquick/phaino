@@ -109,6 +109,8 @@ class ShortcutsWindow(QDialog):
             ("Ctrl+V", "Paste"),
             ("Tab", "Insert 4 Spaces"),
             ("Shift+Tab", "Un-indent"),
+            ("Alt+Z", "Toggle Line Wrap"),
+            ("Ctrl+Shift+L", "Toggle Line Numbers"),
             ("", ""),
             ("Search & Navigation", None),
             ("Ctrl+F", "Find / Replace"),
