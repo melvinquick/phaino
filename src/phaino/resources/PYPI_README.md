@@ -23,11 +23,13 @@ Every time I've tried to find a "lightweight IDE" for myself (kind of thinking f
 
 ### Features
 
-:white_check_mark: Keyboard driven file tree viewer  
-:white_check_mark: Basic Git integration / source control  
-:white_check_mark: Project saving  
-:white_check_mark: Session restore  
-:white_check_mark: Multiple themes for "all" people
+:white_check_mark: Search and replace across files with per-file review
+:white_check_mark: Integrated "terminal" for running scripts
+:white_check_mark: Basic Git integration with diff viewer
+:white_check_mark: Project saving and session restore
+:white_check_mark: Syntax highlighting for various languages
+:white_check_mark: Formatting for various languages (see [Formatting](#formatting) below)
+:white_check_mark: Multiple themes for accessibility
 
 ## Installation
 
@@ -69,7 +71,7 @@ chmod +x script.py
 
 Phaino uses external formatters and does not bundle them. Format on save is optional and can be toggled per language under **Settings → Formatting**.
 
-> I realize formatting/formatters are very opinionated, but these are what are on offer for Phaino right now. Installation is left to the user — Phaino only invokes formatters already on your `PATH`. If one isn't found, you'll get a one-time warning in the terminal panel.
+> I realize formatting/formatters are very opinionated, but these are what are on offer for Phaino right now. Installation is left to the user (Phaino only invokes formatters already on your `PATH`). If one isn't found, you'll get a one-time warning in the terminal panel.
 
 | Language   | Extension       | Formatter |
 | ---------- | --------------- | --------- |
