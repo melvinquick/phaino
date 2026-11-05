@@ -571,3 +571,71 @@ QLabel#BreadcrumbSeparator {
     font-size: 12px;
     padding: 0px 1px;
 }
+
+/* =========================================
+   PREFERENCES DIALOG
+   ========================================= */
+
+#PreferencesDialog {
+    background-color: {{background-color}};
+}
+
+#PreferencesDialog QLabel {
+    color: {{color}};
+    font-size: 13px;
+}
+
+#PreferencesDialog QGroupBox {
+    color: {{color}};
+    font-weight: bold;
+    border: 1px solid {{border}};
+    border-radius: 6px;
+    margin-top: 10px;
+    padding-top: 12px;
+}
+
+#PreferencesDialog QGroupBox::title {
+    subcontrol-origin: margin;
+    left: 10px;
+    padding: 0px 5px;
+}
+
+#PreferencesDialog QComboBox,
+#PreferencesDialog QSpinBox {
+    background-color: {{widget-background-color}};
+    color: {{color}};
+    border: 1px solid {{border}};
+    border-radius: 4px;
+    padding: 4px;
+    font-size: 13px;
+}
+
+#PreferencesDialog QComboBox QAbstractItemView {
+    background-color: {{surface-color}};
+    color: {{color}};
+    selection-background-color: {{accent-color}};
+    selection-color: {{accent-text-color}};
+}
+
+#PreferencesDialog QCheckBox {
+    color: {{color}};
+    font-size: 13px;
+    spacing: 8px;
+}
+
+#PreferencesDialog QListWidget {
+    background-color: {{surface-color}};
+    color: {{color}};
+    border: 1px solid {{border}};
+    border-radius: 4px;
+}
+
+#PreferencesDialog QListWidget::item {
+    padding: 4px;
+    color: {{color}};
+}
+
+#PreferencesDialog QListWidget::item:selected {
+    background-color: {{accent-color}};
+    color: {{accent-text-color}};
+}

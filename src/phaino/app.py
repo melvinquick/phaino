@@ -36,10 +36,11 @@ from PySide6.QtWidgets import (
 
 from .components.command_palette import CommandPalette
 from .components.find_replace import FindReplaceWidget
-from .components.formatter_factory import FORMATTER_MAP, FORMATTER_NAMES, format_code
+from .components.formatter_factory import format_code
 from .components.git_file_model import GitFileSystemModel
 from .components.git_panel import GitPanel
 from .components.highlighter_factory import get_highlighter
+from .components.preferences_dialog import PreferencesDialog
 from .components.projects_panel import ProjectsPanel
 from .components.qss_file_handler import QssFileHandler
 from .components.search_panel import SearchPanel
@@ -53,8 +54,6 @@ style = style_file.load_qss_file()
 
 themes_file = YamlFileHandler("../resources/styles/themes.yaml")
 themes = themes_file.load_yaml_file()
-
-PROJECT_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
 
 
 class DiffHighlighter(QSyntaxHighlighter):
@@ -93,14 +92,13 @@ class Phaino(QMainWindow):
         self.setWindowFlags(Qt.FramelessWindowHint)
 
         self.settings = QSettings("Phaino", "Phaino")
-        saved_theme = self.settings.value("theme", "phaino_dark")
+        saved_theme = self.settings.value("theme", "phaino_dark", type=str)
         if saved_theme not in themes or saved_theme == "general":
             saved_theme = "phaino_dark"
 
         self.theme_name = saved_theme
         self.theme_tokens = {**themes[self.theme_name], **themes["general"]}
 
-        # Formatter preferences
         self.format_on_save = self.settings.value("format_on_save", True, type=bool)
         disabled = self.settings.value("format_disabled_languages", [], type=list)
         self.format_disabled_languages = set(disabled)
@@ -191,11 +189,6 @@ class Phaino(QMainWindow):
         self.help_menu = QMenu(self)
         self.theme_menu = QMenu(self)
 
-        palette_action = QAction("Command Palette", self)
-        palette_action.setShortcut("Ctrl+Shift+P")
-        palette_action.triggered.connect(self.show_command_palette)
-        self.edit_menu.addAction(palette_action)
-
         btn_file.setMenu(self.file_menu)
         btn_edit.setMenu(self.edit_menu)
         btn_help.setMenu(self.help_menu)
@@ -275,11 +268,17 @@ class Phaino(QMainWindow):
         goto_action.triggered.connect(self.go_to_line)
         self.edit_menu.addAction(goto_action)
 
+        palette_action = QAction("Command Palette", self)
+        palette_action.setShortcut("Ctrl+Shift+P")
+        palette_action.triggered.connect(self.show_command_palette)
+        self.edit_menu.addAction(palette_action)
+
         shortcuts_action = QAction("&Keyboard Shortcuts", self)
         shortcuts_action.setShortcut("F1")
         shortcuts_action.triggered.connect(self.show_shortcuts)
         self.help_menu.addAction(shortcuts_action)
 
+        # --- Settings Menu ---
         self.theme_submenu = QMenu("Theme", self)
         self.theme_menu.addMenu(self.theme_submenu)
         for theme_key in themes:
@@ -292,32 +291,10 @@ class Phaino(QMainWindow):
 
         self.theme_menu.addSeparator()
 
-        # --- Formatting submenu ---
-        self.formatting_menu = QMenu("Formatting", self)
-        self.theme_menu.addMenu(self.formatting_menu)
-
-        self.format_on_save_action = QAction("Enable Format on Save", self)
-        self.format_on_save_action.triggered.connect(self._toggle_format_on_save)
-        self.formatting_menu.addAction(self.format_on_save_action)
-
-        self.format_languages_submenu = QMenu("Languages", self.formatting_menu)
-        self.formatting_menu.addMenu(self.format_languages_submenu)
-
-        self.format_language_actions = {}
-        for ext in FORMATTER_MAP:
-            formatter_name = FORMATTER_NAMES.get(ext, "")
-            label = f"{ext} ({formatter_name})" if formatter_name else ext
-            lang_action = QAction(label, self)
-            lang_action.setCheckable(True)
-            lang_action.setChecked(ext not in self.format_disabled_languages)
-            lang_action.toggled.connect(
-                lambda checked, e=ext: self._toggle_format_language(e, checked)
-            )
-            self.format_languages_submenu.addAction(lang_action)
-            self.format_language_actions[ext] = lang_action
-
-        self._update_format_on_save_label()
-        self.format_languages_submenu.setEnabled(self.format_on_save)
+        prefs_action = QAction("Preferences...", self)
+        prefs_action.setShortcut("Ctrl+,")
+        prefs_action.triggered.connect(self.show_preferences)
+        self.theme_menu.addAction(prefs_action)
 
         # * Create Widgets
         self.file_model = GitFileSystemModel(self.theme_tokens)
@@ -331,7 +308,6 @@ class Phaino(QMainWindow):
         for i in range(1, 4):
             self.tree_view.setColumnHidden(i, True)
         self.tree_view.doubleClicked.connect(self.open_file_from_tree)
-
         self.tree_view.setContextMenuPolicy(Qt.CustomContextMenu)
         self.tree_view.customContextMenuRequested.connect(self.show_context_menu)
         self.tree_view.installEventFilter(self)
@@ -342,7 +318,7 @@ class Phaino(QMainWindow):
         self.path_input.returnPressed.connect(self.go_to_directory)
         self.path_input.setObjectName("PathInput")
 
-        # * Setup Status Bar
+        # * Setup Status Bar with Breadcrumbs
         self.status_bar = self.statusBar()
         self.status_bar.setSizeGripEnabled(False)
 
@@ -373,7 +349,6 @@ class Phaino(QMainWindow):
         )
         self.tabs.cursor_position_changed.connect(self.update_cursor_position)
 
-        # * Create Widgets (Terminal, Find, Search, Git)
         self.terminal = TerminalWidget(self.theme_tokens, self)
 
         self.find_widget = FindReplaceWidget(None)
@@ -406,11 +381,13 @@ class Phaino(QMainWindow):
         explorer_layout.addWidget(self.tree_view)
 
         self.sidebar_tabs = QTabWidget()
+        self.sidebar_tabs.setObjectName("SidebarTabs")
         self.sidebar_tabs.setDocumentMode(True)
         self.sidebar_tabs.tabBar().setDrawBase(False)
         self.sidebar_tabs.addTab(explorer_tab, "Explorer")
         self.sidebar_tabs.addTab(self.git_panel, "Source Control")
         self.sidebar_tabs.addTab(self.projects_panel, "Projects")
+
         self.editor_splitter = QSplitter(Qt.Vertical)
         self.editor_splitter.addWidget(self.find_widget)
         self.editor_splitter.addWidget(self.search_panel)
@@ -449,17 +426,7 @@ class Phaino(QMainWindow):
         self.update_window_title()
         self.update_cursor_position(self.tabs.current_editor())
         self.update_git_status()
-
-    def create_window_dot(self, color_hex):
-        pixmap = QPixmap(24, 24)
-        pixmap.fill(Qt.transparent)
-        painter = QPainter(pixmap)
-        painter.setRenderHint(QPainter.Antialiasing)
-        painter.setBrush(QColor(color_hex))
-        painter.setPen(Qt.NoPen)
-        painter.drawEllipse(6, 6, 12, 12)
-        painter.end()
-        return QIcon(pixmap)
+        self._apply_editor_preferences()
 
     # ==========================================
     # THEME & STATE MANAGEMENT
@@ -512,6 +479,17 @@ class Phaino(QMainWindow):
                     editor.highlighter = new_highlighter
                     editor.highlighter.rehighlight()
 
+    def create_window_dot(self, color_hex):
+        pixmap = QPixmap(24, 24)
+        pixmap.fill(Qt.transparent)
+        painter = QPainter(pixmap)
+        painter.setRenderHint(QPainter.Antialiasing)
+        painter.setBrush(QColor(color_hex))
+        painter.setPen(Qt.NoPen)
+        painter.drawEllipse(6, 6, 12, 12)
+        painter.end()
+        return QIcon(pixmap)
+
     def _refresh_window_dots(self):
         self.btn_close.setIcon(
             self.create_window_dot(self.theme_tokens.get("danger-color"))
@@ -549,6 +527,7 @@ class Phaino(QMainWindow):
             except TypeError:
                 pass
             editor.format_requested.connect(self._on_format_requested)
+
             if file_path and not self.tabs.tabText(self.tabs.currentIndex()).endswith(
                 "(diff)"
             ):
@@ -582,6 +561,58 @@ class Phaino(QMainWindow):
         else:
             lang = "TEXT"
         self.lbl_language.setText(lang)
+
+    # ==========================================
+    # BREADCRUMBS
+    # ==========================================
+
+    def _update_breadcrumbs(self, file_path):
+        while self.breadcrumb_layout.count():
+            item = self.breadcrumb_layout.takeAt(0)
+            widget = item.widget()
+            if widget:
+                widget.deleteLater()
+
+        if not file_path or not self.current_root:
+            return
+
+        try:
+            rel_path = os.path.relpath(file_path, self.current_root)
+        except ValueError:
+            return
+
+        if rel_path.startswith(".."):
+            return
+
+        parts = rel_path.split(os.sep)
+        num_parts = len(parts)
+
+        for i, part in enumerate(parts):
+            is_last = i == num_parts - 1
+            dir_path = os.path.join(self.current_root, *parts[: i + 1])
+            target_path = file_path if is_last else dir_path
+
+            btn = QPushButton(part)
+            btn.setObjectName("BreadcrumbFile" if is_last else "BreadcrumbSegment")
+            btn.setCursor(Qt.PointingHandCursor)
+            btn.clicked.connect(
+                lambda checked, p=target_path: self._highlight_in_explorer(p)
+            )
+            self.breadcrumb_layout.addWidget(btn)
+
+            if not is_last:
+                sep = QLabel("›")
+                sep.setObjectName("BreadcrumbSeparator")
+                self.breadcrumb_layout.addWidget(sep)
+
+    def _highlight_in_explorer(self, path):
+        self.sidebar_tabs.setCurrentWidget(self.sidebar_tabs.widget(0))
+        index = self.file_model.index(path)
+        if not index.isValid():
+            return
+        self.tree_view.setCurrentIndex(index)
+        self.tree_view.scrollTo(index)
+        self.tree_view.setFocus()
 
     # ==========================================
     # WIDGET VISIBILITY
@@ -643,6 +674,105 @@ class Phaino(QMainWindow):
             editor.setTextCursor(cursor)
             editor.centerCursor()
             editor.setFocus()
+
+    # ==========================================
+    # COMMAND PALETTE & PREFERENCES
+    # ==========================================
+
+    def show_command_palette(self):
+        self._palette_clipboard_text = QApplication.clipboard().text()
+        if not hasattr(self, "command_palette"):
+            self.command_palette = CommandPalette(
+                self._command_palette_focus_target, self
+            )
+            self.command_palette.paste_requested.connect(self._paste_from_palette)
+        actions = []
+        for menu in (self.file_menu, self.edit_menu, self.theme_menu):
+            actions.extend(menu.actions())
+        self.command_palette.populate(actions)
+        self.command_palette.show()
+        self.command_palette.raise_()
+        self.command_palette.activateWindow()
+
+    def _command_palette_focus_target(self):
+        return self.tabs.current_editor()
+
+    def _paste_from_palette(self):
+        editor = self.tabs.current_editor()
+        if editor:
+            editor.setFocus()
+            editor.insertPlainText(self._palette_clipboard_text)
+
+    def show_preferences(self):
+        dialog = PreferencesDialog(self.settings, themes, self)
+        dialog.settings_changed.connect(self._apply_preferences)
+        dialog.exec()
+
+    def _apply_preferences(self):
+        new_theme = self.settings.value("theme", "phaino_dark", type=str)
+        if new_theme != self.theme_name:
+            self.change_theme(new_theme)
+
+        self.format_on_save = self.settings.value("format_on_save", True, type=bool)
+        disabled = self.settings.value("format_disabled_languages", [], type=list)
+        self.format_disabled_languages = set(disabled)
+
+        self._apply_editor_preferences()
+
+    def _apply_editor_preferences(self):
+        font_size = self.settings.value("font_size", 15, type=int)
+        show_numbers = self.settings.value("show_line_numbers", True, type=bool)
+        wrap = self.settings.value("line_wrap", False, type=bool)
+
+        for i in range(self.tabs.count()):
+            editor = self.tabs.widget(i)
+            if hasattr(editor, "update_editor_preferences"):
+                editor.update_editor_preferences(font_size, show_numbers, wrap)
+
+    # ==========================================
+    # FORMATTING
+    # ==========================================
+
+    def _format_editor(self, editor, force=False):
+        file_path = getattr(editor, "file_path", None)
+        if not file_path:
+            return False
+
+        ext = os.path.splitext(file_path)[1].lower()
+        if not force:
+            if not self.format_on_save:
+                return False
+            if ext in self.format_disabled_languages:
+                return False
+
+        source = editor.toPlainText()
+        if not source.strip():
+            return False
+
+        formatted = format_code(
+            ext, source, on_error=lambda msg: self.terminal.append(msg + "\n")
+        )
+
+        if formatted != source:
+            cursor_pos = editor.textCursor().position()
+            editor.blockSignals(True)
+            editor.setPlainText(formatted)
+            editor.blockSignals(False)
+            cursor = editor.textCursor()
+            cursor.setPosition(min(cursor_pos, len(formatted)))
+            editor.setTextCursor(cursor)
+            return True
+
+        return False
+
+    def _format_current_editor(self):
+        editor = self.tabs.current_editor()
+        if not editor:
+            return
+        self._format_editor(editor, force=True)
+
+    def _on_format_requested(self):
+        self._format_current_editor()
 
     # ==========================================
     # GIT INTEGRATION
@@ -798,7 +928,6 @@ class Phaino(QMainWindow):
 
         working_dir = os.path.dirname(file_path)
 
-        # Run the file directly. This relies on the shebang line.
         self.terminal.run_command([file_path], working_directory=working_dir)
 
     # ==========================================
@@ -825,42 +954,14 @@ class Phaino(QMainWindow):
         if editor:
             editor.copy()
 
-    def paste(self, text=None):
+    def paste(self):
         editor = self.tabs.current_editor()
-        if not editor:
-            return
-        if text is None:
+        if editor:
             editor.paste()
-        else:
-            editor.insertPlainText(text)
 
     def show_shortcuts(self):
         dialog = ShortcutsWindow(self.theme_tokens, self)
         dialog.exec()
-
-    def show_command_palette(self):
-        self._palette_clipboard_text = QApplication.clipboard().text()
-        if not hasattr(self, "command_palette"):
-            self.command_palette = CommandPalette(
-                self._command_palette_focus_target, self
-            )
-            self.command_palette.paste_requested.connect(self._paste_from_palette)
-        actions = []
-        for menu in (self.file_menu, self.edit_menu, self.theme_menu):
-            actions.extend(menu.actions())
-        self.command_palette.populate(actions)
-        self.command_palette.show()
-        self.command_palette.raise_()
-        self.command_palette.activateWindow()
-
-    def _command_palette_focus_target(self):
-        return self.tabs.current_editor()
-
-    def _paste_from_palette(self):
-        editor = self.tabs.current_editor()
-        if editor:
-            editor.setFocus()
-            editor.insertPlainText(self._palette_clipboard_text)
 
     # ==========================================
     # FILE EXPLORER CONTEXT MENU
@@ -986,6 +1087,18 @@ class Phaino(QMainWindow):
         self.file_model.setRootPath(self.file_model.rootPath())
         self.update_git_status()
 
+    def _save_current_as_project(self, pos):
+        index = self.tree_view.indexAt(pos)
+        if index.isValid():
+            path = self.file_model.filePath(index)
+            if not os.path.isdir(path):
+                path = os.path.dirname(path)
+            default_name = os.path.basename(path.rstrip("/")) or path
+        else:
+            path = self.current_root
+            default_name = os.path.basename(path.rstrip("/")) or path
+        self.projects_panel.add_project(path, default_name)
+
     # ==========================================
     # FILE & FOLDER OPERATIONS
     # ==========================================
@@ -994,6 +1107,12 @@ class Phaino(QMainWindow):
         folder_path = QFileDialog.getExistingDirectory(self, "Open Folder")
         if folder_path:
             self.set_tree_root(folder_path)
+
+    def _add_current_root_as_project(self):
+        default_name = (
+            os.path.basename(self.current_root.rstrip("/")) or self.current_root
+        )
+        self.projects_panel.add_project(self.current_root, default_name)
 
     def go_to_directory(self):
         new_path = self.path_input.text().strip()
@@ -1028,6 +1147,10 @@ class Phaino(QMainWindow):
                 self._update_breadcrumbs(file_path)
             else:
                 self._update_breadcrumbs(None)
+
+    def _open_project(self, path):
+        self.set_tree_root(path)
+        self.sidebar_tabs.setCurrentWidget(self.sidebar_tabs.widget(0))
 
     def open_file_from_tree(self, index):
         file_path = self.file_model.filePath(index)
@@ -1086,6 +1209,7 @@ class Phaino(QMainWindow):
             editor.document().setModified(False)
             editor.document().clearUndoRedoStacks()
             self.update_window_title()
+
             if self.tabs.currentIndex() >= 0:
                 self._update_breadcrumbs(file_path)
 
@@ -1106,11 +1230,14 @@ class Phaino(QMainWindow):
         try:
             with open(file_path, "w", encoding="utf-8") as file:
                 file.write(editor.toPlainText())
+
             editor.document().setModified(False)
             self.update_window_title()
+
             self.update_git_status()
             if hasattr(self, "git_panel"):
                 self.git_panel.refresh()
+
             return True
         except Exception as e:
             print(f"Error saving file: {e}")
@@ -1147,6 +1274,7 @@ class Phaino(QMainWindow):
                 self.refresh_tree()
                 if hasattr(self, "git_panel"):
                     self.git_panel.refresh()
+                self._update_breadcrumbs(file_path)
 
             return success
 
@@ -1180,76 +1308,6 @@ class Phaino(QMainWindow):
             self.tabs._force_close_tab(index)
         elif reply == QMessageBox.Cancel:
             pass
-
-    def _save_current_as_project(self, pos):
-        index = self.tree_view.indexAt(pos)
-        if index.isValid():
-            path = self.file_model.filePath(index)
-            if not os.path.isdir(path):
-                path = os.path.dirname(path)
-            default_name = os.path.basename(path.rstrip("/")) or path
-        else:
-            path = self.current_root
-            default_name = os.path.basename(path.rstrip("/")) or path
-        self.projects_panel.add_project(path, default_name)
-
-    def _add_current_root_as_project(self):
-        default_name = (
-            os.path.basename(self.current_root.rstrip("/")) or self.current_root
-        )
-        self.projects_panel.add_project(self.current_root, default_name)
-
-    def _open_project(self, path):
-        self.set_tree_root(path)
-        self.sidebar_tabs.setCurrentWidget(self.sidebar_tabs.widget(0))
-
-    def _highlight_in_explorer(self, path):
-        self.sidebar_tabs.setCurrentWidget(self.sidebar_tabs.widget(0))
-        index = self.file_model.index(path)
-        if not index.isValid():
-            return
-        self.tree_view.setCurrentIndex(index)
-        self.tree_view.scrollTo(index)
-        self.tree_view.setFocus()
-
-    def _update_breadcrumbs(self, file_path):
-        while self.breadcrumb_layout.count():
-            item = self.breadcrumb_layout.takeAt(0)
-            widget = item.widget()
-            if widget:
-                widget.deleteLater()
-
-        if not file_path or not self.current_root:
-            return
-
-        try:
-            rel_path = os.path.relpath(file_path, self.current_root)
-        except ValueError:
-            return
-
-        if rel_path.startswith(".."):
-            return
-
-        parts = rel_path.split(os.sep)
-        num_parts = len(parts)
-
-        for i, part in enumerate(parts):
-            is_last = i == num_parts - 1
-            dir_path = os.path.join(self.current_root, *parts[: i + 1])
-            target_path = file_path if is_last else dir_path
-
-            btn = QPushButton(part)
-            btn.setObjectName("BreadcrumbFile" if is_last else "BreadcrumbSegment")
-            btn.setCursor(Qt.PointingHandCursor)
-            btn.clicked.connect(
-                lambda checked, p=target_path: self._highlight_in_explorer(p)
-            )
-            self.breadcrumb_layout.addWidget(btn)
-
-            if not is_last:
-                sep = QLabel("›")
-                sep.setObjectName("BreadcrumbSeparator")
-                self.breadcrumb_layout.addWidget(sep)
 
     # ==========================================
     # WINDOW CONTROL
@@ -1293,72 +1351,6 @@ class Phaino(QMainWindow):
             self.showNormal()
         else:
             self.showMaximized()
-
-    # ==========================================
-    # FORMATTING
-    # ==========================================
-
-    def _toggle_format_on_save(self, checked=None):
-        self.format_on_save = not self.format_on_save
-        self.settings.setValue("format_on_save", self.format_on_save)
-        self._update_format_on_save_label()
-        self.format_languages_submenu.setEnabled(self.format_on_save)
-
-    def _update_format_on_save_label(self):
-        state = "On" if self.format_on_save else "Off"
-        self.format_on_save_action.setText(f"Enable Format on Save ({state})")
-
-    def _toggle_format_language(self, ext, checked):
-        if checked:
-            self.format_disabled_languages.discard(ext)
-        else:
-            self.format_disabled_languages.add(ext)
-        self.settings.setValue(
-            "format_disabled_languages", list(self.format_disabled_languages)
-        )
-
-    def _format_editor(self, editor, force=False):
-        """Formats the editor's buffer in place (no save). Returns True if the
-        buffer was changed."""
-        file_path = getattr(editor, "file_path", None)
-        if not file_path:
-            return False
-
-        ext = os.path.splitext(file_path)[1].lower()
-        if not force:
-            if not self.format_on_save:
-                return False
-            if ext in self.format_disabled_languages:
-                return False
-
-        source = editor.toPlainText()
-        if not source.strip():
-            return False
-
-        formatted = format_code(
-            ext, source, on_error=lambda msg: self.terminal.append(msg + "\n")
-        )
-
-        if formatted != source:
-            cursor_pos = editor.textCursor().position()
-            editor.blockSignals(True)
-            editor.setPlainText(formatted)
-            editor.blockSignals(False)
-            cursor = editor.textCursor()
-            cursor.setPosition(min(cursor_pos, len(formatted)))
-            editor.setTextCursor(cursor)
-            return True
-
-        return False
-
-    def _format_current_editor(self):
-        editor = self.tabs.current_editor()
-        if not editor:
-            return
-        self._format_editor(editor, force=True)
-
-    def _on_format_requested(self):
-        self._format_current_editor()
 
 
 def main():
