@@ -224,6 +224,10 @@ class Phaino(QMainWindow):
         run_action.triggered.connect(self.run_file_in_terminal)
         self.file_menu.addAction(run_action)
 
+        self.recent_submenu = QMenu("Recent", self)
+        self.file_menu.addMenu(self.recent_submenu)
+        self._refresh_recent_menu()
+
         undo_action = QAction("&Undo", self)
         undo_action.setShortcut(QKeySequence.Undo)
         undo_action.triggered.connect(self.undo)
@@ -1305,6 +1309,8 @@ class Phaino(QMainWindow):
             if self.tabs.currentIndex() >= 0:
                 self._update_breadcrumbs(file_path)
 
+            self._add_recent_file(file_path)
+
         except Exception as e:
             print(f"Error opening file: {e}")
 
@@ -1453,6 +1459,59 @@ class Phaino(QMainWindow):
             "\n[Terminal] No terminal emulator found on PATH. "
             "Set $TERMINAL to your preferred terminal.\n"
         )
+
+    def _load_recent_files(self):
+        raw = self.settings.value("recent_files", [], type=list)
+        return [p for p in raw if isinstance(p, str) and os.path.isfile(p)]
+
+    def _save_recent_files(self, files):
+        self.settings.setValue("recent_files", files)
+
+    def _add_recent_file(self, file_path):
+        files = self._load_recent_files()
+        if file_path in files:
+            files.remove(file_path)
+        files.insert(0, file_path)
+        files = files[:10]
+        self._save_recent_files(files)
+        self._refresh_recent_menu()
+
+    def _refresh_recent_menu(self):
+        self.recent_submenu.clear()
+        files = self._load_recent_files()
+
+        if not files:
+            empty_action = QAction("(No recent files)", self)
+            empty_action.setEnabled(False)
+            self.recent_submenu.addAction(empty_action)
+            return
+
+        for path in files:
+            display = os.path.basename(path)
+            action = QAction(display, self)
+            action.setToolTip(path)
+            action.triggered.connect(lambda checked, p=path: self._open_recent_file(p))
+            self.recent_submenu.addAction(action)
+
+        self.recent_submenu.addSeparator()
+        clear_action = QAction("Clear Recent", self)
+        clear_action.triggered.connect(self._clear_recent_files)
+        self.recent_submenu.addAction(clear_action)
+
+    def _open_recent_file(self, file_path):
+        if not os.path.isfile(file_path):
+            self.terminal.append(f"\n[Recent] File no longer exists: {file_path}\n")
+            files = self._load_recent_files()
+            if file_path in files:
+                files.remove(file_path)
+                self._save_recent_files(files)
+                self._refresh_recent_menu()
+            return
+        self.load_file(file_path)
+
+    def _clear_recent_files(self):
+        self._save_recent_files([])
+        self._refresh_recent_menu()
 
     # ==========================================
     # WINDOW CONTROL
