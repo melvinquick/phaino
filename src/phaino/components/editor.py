@@ -235,6 +235,15 @@ class CodeEditor(QPlainTextEdit):
         self.setTextCursor(tc)
 
     def keyPressEvent(self, event):
+        if event.key() in (
+            Qt.Key_Control,
+            Qt.Key_Shift,
+            Qt.Key_Alt,
+            Qt.Key_Meta,
+        ):
+            event.accept()
+            return
+
         if event.key() == Qt.Key_Escape:
             if self.completer and self.completer.popup().isVisible():
                 self.completer.popup().hide()
