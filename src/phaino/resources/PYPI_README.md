@@ -67,6 +67,18 @@ Then mark the file as executable:
 chmod +x script.py
 ```
 
+### Terminal
+
+Phaino includes a built-in "terminal" panel for viewing the output of scripts
+you run from within the app. It is **not** a full terminal emulator. It
+captures the output of the process Phaino launches and displays it, and it
+relays standard input back to that process. Interactive shell sessions (like
+`vim`, `htop`, or a raw `bash` prompt) are not supported inside this panel.
+
+If you need a real terminal in your project, right-click any folder in the
+Explorer and choose **Open in Terminal** to launch your system's default
+terminal emulator in that directory.
+
 ### Formatting
 
 Phaino uses external formatters and does not bundle them. Format on save is optional and can be toggled per language under **Settings → Formatting**.
