@@ -54,3 +54,22 @@
 ### Bug Fixes
 
 - Fixing issue in README with feature list entries not being on new lines
+
+## 0.4.0 (07 Nov 2026)
+
+### New Features
+
+- Added Zen mode (`Ctrl+K`) to hide the sidebar, status bar, terminal, and tab bar for a distraction-free view
+- Added automatic bracket and quote pairing (`()`, `[]`, `{}`, `""`, `''`), including wrapping a selection
+- Added font zoom shortcuts: `Ctrl+=` / `Ctrl++` to zoom in, `Ctrl+-` to zoom out, and `Ctrl+0` to reset to the default size
+- Added a per-language comment toggle (`Ctrl+/`) that inserts the correct line-comment prefix for the current file type
+
+### Improvements
+
+- Added Zoom In, Zoom Out, and Reset Zoom actions to the Edit menu (also available via the command palette)
+- Added the zoom shortcuts to the in-app Keyboard Shortcuts window
+
+### Bug Fixes
+
+- Fixed the Markdown comment toggle inserting `#` (a heading marker) instead of doing nothing; Markdown has no line-comment syntax, so the toggle is now a no-op there
+- Fixed the editor gutter margin being reserved even when line numbers were hidden
