@@ -183,6 +183,10 @@ class Phaino(QMainWindow):
 
         self.main_layout.addWidget(self.title_bar)
 
+        self._zen_mode = False
+        self._saved_main_splitter_sizes = None
+        self._saved_editor_splitter_sizes = None
+
         # * Setup Menus
         self.file_menu = QMenu(self)
         self.edit_menu = QMenu(self)
@@ -200,7 +204,7 @@ class Phaino(QMainWindow):
         self.file_menu.addAction(open_action)
 
         open_folder_action = QAction("Open &Folder...", self)
-        open_folder_action.setShortcut("Ctrl+K")
+        open_folder_action.setShortcut("Ctrl+Shift+O")
         open_folder_action.triggered.connect(self.open_folder)
         self.file_menu.addAction(open_folder_action)
 
@@ -243,6 +247,11 @@ class Phaino(QMainWindow):
         wrap_action.triggered.connect(self.toggle_line_wrap)
         self.edit_menu.addAction(wrap_action)
 
+        zen_action = QAction("Toggle &Zen Mode", self)
+        zen_action.setShortcut("Ctrl+K")
+        zen_action.triggered.connect(self.toggle_zen_mode)
+        self.edit_menu.addAction(zen_action)
+
         self.edit_menu.addSeparator()
 
         cut_action = QAction("Cu&t", self)
@@ -259,6 +268,11 @@ class Phaino(QMainWindow):
         paste_action.setShortcut(QKeySequence.Paste)
         paste_action.triggered.connect(self.paste)
         self.edit_menu.addAction(paste_action)
+
+        comment_action = QAction("Toggle &Comment", self)
+        comment_action.setShortcut("Ctrl+/")
+        comment_action.triggered.connect(self._toggle_comment)
+        self.edit_menu.addAction(comment_action)
 
         self.edit_menu.addSeparator()
 
@@ -291,6 +305,27 @@ class Phaino(QMainWindow):
         line_numbers_action.setShortcut("Ctrl+Shift+L")
         line_numbers_action.triggered.connect(self.toggle_line_numbers)
         self.edit_menu.addAction(line_numbers_action)
+
+        zoom_in_action = QAction("Zoom &In", self)
+        zoom_in_action.setShortcuts(
+            [
+                QKeySequence("Ctrl+="),
+                QKeySequence("Ctrl++"),
+                QKeySequence("Ctrl+Shift+="),
+            ]
+        )
+        zoom_in_action.triggered.connect(self.zoom_in)
+        self.edit_menu.addAction(zoom_in_action)
+
+        zoom_out_action = QAction("Zoom &Out", self)
+        zoom_out_action.setShortcut("Ctrl+-")
+        zoom_out_action.triggered.connect(self.zoom_out)
+        self.edit_menu.addAction(zoom_out_action)
+
+        zoom_reset_action = QAction("&Reset Zoom", self)
+        zoom_reset_action.setShortcut("Ctrl+0")
+        zoom_reset_action.triggered.connect(self.reset_zoom)
+        self.edit_menu.addAction(zoom_reset_action)
 
         shortcuts_action = QAction("&Keyboard Shortcuts", self)
         shortcuts_action.setShortcut("F1")
@@ -389,6 +424,7 @@ class Phaino(QMainWindow):
         self.sidebar_tabs.addTab(explorer_tab, "Explorer")
         self.sidebar_tabs.addTab(self.git_panel, "Source Control")
         self.sidebar_tabs.addTab(self.projects_panel, "Projects")
+        self.sidebar_tabs.setMinimumWidth(self.sidebar_tabs.tabBar().sizeHint().width())
 
         self.editor_splitter = QSplitter(Qt.Vertical)
         self.editor_splitter.addWidget(self.find_widget)
@@ -407,13 +443,14 @@ class Phaino(QMainWindow):
         editor_layout.setSpacing(0)
         editor_layout.addWidget(self.editor_splitter)
 
-        main_splitter = QSplitter(Qt.Horizontal)
-        main_splitter.addWidget(self.sidebar_tabs)
-        main_splitter.addWidget(self.editor_container)
-        main_splitter.setSizes([250, 750])
+        self.main_splitter = QSplitter(Qt.Horizontal)
+        self.main_splitter.addWidget(self.sidebar_tabs)
+        self.main_splitter.addWidget(self.editor_container)
+        self.main_splitter.setSizes([250, 750])
+        self.main_splitter.setCollapsible(0, False)
 
         page = QGridLayout()
-        page.addWidget(main_splitter, 0, 0)
+        page.addWidget(self.main_splitter, 0, 0)
 
         gui = QWidget()
         gui.setObjectName("MainWindowContent")
@@ -437,6 +474,13 @@ class Phaino(QMainWindow):
     def apply_theme(self, theme_name):
         self.theme_name = theme_name if theme_name in themes else "dark"
         self.theme_tokens = {**themes[self.theme_name], **themes["general"]}
+
+        base = self.settings.value("font_size", 15, type=int)
+        self.theme_tokens["font-size"] = f"{base}px"
+        self.theme_tokens["font-size-lg"] = f"{max(8, round(base * 16 / 15))}px"
+        self.theme_tokens["font-size-md"] = f"{max(8, round(base * 13 / 15))}px"
+        self.theme_tokens["font-size-sm"] = f"{max(8, round(base * 12 / 15))}px"
+        self.theme_tokens["font-size-xs"] = f"{max(8, round(base * 11 / 15))}px"
 
         stylesheet = style
         for key, value in self.theme_tokens.items():
@@ -798,6 +842,9 @@ class Phaino(QMainWindow):
         self._apply_editor_preferences()
 
     def _apply_editor_preferences(self):
+        self.apply_theme(self.theme_name)
+
+        font_family = self.settings.value("font_family", "Fira Code", type=str)
         font_size = self.settings.value("font_size", 15, type=int)
         show_numbers = self.settings.value("show_line_numbers", True, type=bool)
         wrap = self.settings.value("line_wrap", False, type=bool)
@@ -809,7 +856,7 @@ class Phaino(QMainWindow):
             editor = self.tabs.widget(i)
             if hasattr(editor, "update_editor_preferences"):
                 editor.update_editor_preferences(
-                    font_size, show_numbers, wrap, show_trailing_ws
+                    font_family, font_size, show_numbers, wrap, show_trailing_ws
                 )
 
     # ==========================================
@@ -1055,6 +1102,59 @@ class Phaino(QMainWindow):
         new_value = not self.settings.value("show_line_numbers", True, type=bool)
         self.settings.setValue("show_line_numbers", new_value)
         self._apply_editor_preferences()
+
+    def zoom_in(self):
+        self._set_font_size(self._current_font_size() + 1)
+
+    def zoom_out(self):
+        self._set_font_size(self._current_font_size() - 1)
+
+    def reset_zoom(self):
+        self._set_font_size(15)
+
+    def _current_font_size(self):
+        return self.settings.value("font_size", 15, type=int)
+
+    def _set_font_size(self, size):
+        size = max(8, min(32, size))
+        if size == self._current_font_size():
+            return
+        self.settings.setValue("font_size", size)
+        self._apply_editor_preferences()
+
+    def _toggle_comment(self):
+        editor = self.tabs.current_editor()
+        if editor and hasattr(editor, "toggle_comment"):
+            editor.toggle_comment()
+
+    def toggle_zen_mode(self):
+        self._zen_mode = not self._zen_mode
+        if self._zen_mode:
+            self._enter_zen_mode()
+        else:
+            self._exit_zen_mode()
+
+    def _enter_zen_mode(self):
+        self._saved_main_splitter_sizes = self.main_splitter.sizes()
+        self._saved_editor_splitter_sizes = self.editor_splitter.sizes()
+
+        self.sidebar_tabs.hide()
+        self.status_bar.hide()
+        self.find_widget.hide()
+        self.search_panel.hide()
+        self.terminal.hide()
+        self.tabs.set_zen_mode(True)
+
+    def _exit_zen_mode(self):
+        self.sidebar_tabs.show()
+        self.status_bar.show()
+        self.terminal.show()
+        self.tabs.set_zen_mode(False)
+
+        if self._saved_main_splitter_sizes:
+            self.main_splitter.setSizes(self._saved_main_splitter_sizes)
+        if self._saved_editor_splitter_sizes:
+            self.editor_splitter.setSizes(self._saved_editor_splitter_sizes)
 
     # ==========================================
     # FILE EXPLORER CONTEXT MENU

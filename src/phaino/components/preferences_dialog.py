@@ -1,4 +1,5 @@
-from PySide6.QtCore import Qt, Signal
+from PySide6.QtCore import Signal
+from PySide6.QtGui import QFontDatabase
 from PySide6.QtWidgets import (
     QCheckBox,
     QComboBox,
@@ -6,11 +7,11 @@ from PySide6.QtWidgets import (
     QGroupBox,
     QHBoxLayout,
     QLabel,
-    QListWidget,
-    QListWidgetItem,
     QPushButton,
+    QScrollArea,
     QSpinBox,
     QVBoxLayout,
+    QWidget,
 )
 
 from .formatter_factory import FORMATTER_MAP, FORMATTER_NAMES
@@ -23,7 +24,7 @@ class PreferencesDialog(QDialog):
         super().__init__(parent)
         self.setWindowTitle("Preferences")
         self.setObjectName("PreferencesDialog")
-        self.resize(500, 600)
+        self.resize(500, 650)
         self.setModal(True)
 
         self.settings = settings
@@ -53,12 +54,28 @@ class PreferencesDialog(QDialog):
         appearance_layout.addLayout(theme_row)
 
         font_row = QHBoxLayout()
-        font_row.addWidget(QLabel("Editor Font Size:"))
+        font_row.addWidget(QLabel("Editor Font:"))
+
+        self.font_family_combo = QComboBox()
+        mono_families = [
+            f for f in QFontDatabase.families() if QFontDatabase.isFixedPitch(f)
+        ]
+        if not mono_families:
+            mono_families = ["Fira Code", "JetBrains Mono", "Consolas"]
+        for family in mono_families:
+            self.font_family_combo.addItem(family)
+
+        saved_family = settings.value("font_family", "Fira Code", type=str)
+        idx = self.font_family_combo.findText(saved_family)
+        if idx >= 0:
+            self.font_family_combo.setCurrentIndex(idx)
+
+        font_row.addWidget(self.font_family_combo, 1)
+        font_row.addWidget(QLabel("Size:"))
         self.font_spin = QSpinBox()
         self.font_spin.setRange(8, 32)
         self.font_spin.setValue(settings.value("font_size", 15, type=int))
         font_row.addWidget(self.font_spin)
-        font_row.addStretch()
         appearance_layout.addLayout(font_row)
 
         layout.addWidget(appearance_group)
@@ -97,21 +114,35 @@ class PreferencesDialog(QDialog):
 
         formatting_layout.addWidget(QLabel("Languages to format:"))
 
-        self.language_list = QListWidget()
+        scroll = QScrollArea()
+        scroll.setWidgetResizable(True)
+        scroll.setFrameShape(QScrollArea.NoFrame)
+        scroll.setMaximumHeight(200)
+
+        lang_container = QWidget()
+        lang_layout = QVBoxLayout(lang_container)
+        lang_layout.setContentsMargins(5, 5, 5, 5)
+        lang_layout.setSpacing(2)
+
         disabled = set(settings.value("format_disabled_languages", [], type=list))
+        self.language_checks = {}
+
         for ext in FORMATTER_MAP:
             formatter_name = FORMATTER_NAMES.get(ext, "")
             label = f"{ext}  ({formatter_name})" if formatter_name else ext
-            item = QListWidgetItem(label)
-            item.setData(Qt.UserRole, ext)
-            item.setFlags(item.flags() | Qt.ItemIsUserCheckable)
-            item.setCheckState(Qt.Unchecked if ext in disabled else Qt.Checked)
-            self.language_list.addItem(item)
-        formatting_layout.addWidget(self.language_list)
+            check = QCheckBox(label)
+            check.setChecked(ext not in disabled)
+            check.toggled.connect(self._on_change)
+            lang_layout.addWidget(check)
+            self.language_checks[ext] = check
+
+        lang_layout.addStretch()
+        scroll.setWidget(lang_container)
+        formatting_layout.addWidget(scroll)
 
         layout.addWidget(formatting_group)
 
-        # --- Buttons ---
+        # --- Close Button ---
         btn_layout = QHBoxLayout()
         btn_layout.addStretch()
         close_btn = QPushButton("Close")
@@ -120,14 +151,14 @@ class PreferencesDialog(QDialog):
         btn_layout.addWidget(close_btn)
         layout.addLayout(btn_layout)
 
-        # --- Connections (live-apply) ---
+        # --- Signals ---
         self.theme_combo.currentIndexChanged.connect(self._on_change)
+        self.font_family_combo.currentIndexChanged.connect(self._on_change)
         self.font_spin.valueChanged.connect(self._on_change)
         self.line_numbers_check.toggled.connect(self._on_change)
         self.line_wrap_check.toggled.connect(self._on_change)
         self.trailing_ws_check.toggled.connect(self._on_change)
         self.format_on_save_check.toggled.connect(self._on_change)
-        self.language_list.itemChanged.connect(self._on_change)
 
     def _on_change(self, *args):
         self._save()
@@ -135,6 +166,7 @@ class PreferencesDialog(QDialog):
 
     def _save(self):
         self.settings.setValue("theme", self.theme_combo.currentData())
+        self.settings.setValue("font_family", self.font_family_combo.currentText())
         self.settings.setValue("font_size", self.font_spin.value())
         self.settings.setValue("show_line_numbers", self.line_numbers_check.isChecked())
         self.settings.setValue("line_wrap", self.line_wrap_check.isChecked())
@@ -143,9 +175,7 @@ class PreferencesDialog(QDialog):
         )
         self.settings.setValue("format_on_save", self.format_on_save_check.isChecked())
 
-        disabled = []
-        for i in range(self.language_list.count()):
-            item = self.language_list.item(i)
-            if item.checkState() == Qt.Unchecked:
-                disabled.append(item.data(Qt.UserRole))
+        disabled = [
+            ext for ext, check in self.language_checks.items() if not check.isChecked()
+        ]
         self.settings.setValue("format_disabled_languages", disabled)
