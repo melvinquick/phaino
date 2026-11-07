@@ -124,7 +124,6 @@ class TabManager(QWidget):
 
     def create_tab(self, title="Untitled"):
         editor = CodeEditor(self.theme_tokens, self)
-        editor.setPlaceholderText("Type your code here...")
 
         index = self.tabs.addTab(editor, title)
         self.tabs.setCurrentIndex(index)
@@ -224,3 +223,9 @@ class TabManager(QWidget):
 
     def tabText(self, index):
         return self.tabs.tabText(index)
+
+    def set_zen_mode(self, zen: bool):
+        if zen:
+            self.tabs.tabBar().hide()
+        else:
+            self.tabs.tabBar().show()
