@@ -405,7 +405,7 @@ class Phaino(QMainWindow):
         self.search_panel.replace_requested.connect(self.replace_in_files)
         self.search_panel.closed.connect(self.hide_search_panel)
 
-        self.git_panel = GitPanel(self.theme_tokens)
+        self.git_panel = GitPanel(self.theme_tokens, self.terminal)
         self.git_panel.file_selected.connect(self.load_file)
         self.git_panel.diff_requested.connect(self.show_diff)
         self.git_panel.repo_changed.connect(self.update_git_status)
@@ -734,7 +734,7 @@ class Phaino(QMainWindow):
                         f.write(new_content)
                     modified_count += 1
             except Exception as e:
-                print(f"Error replacing in {file_path}: {e}")
+                self.terminal.append(f"\n[Replace] Error in {file_path}: {e}\n")
 
         for i in range(self.tabs.count()):
             editor = self.tabs.widget(i)
@@ -756,7 +756,9 @@ class Phaino(QMainWindow):
                     ):
                         editor.highlighter.rehighlight()
                 except Exception as e:
-                    print(f"Error reloading {file_path}: {e}")
+                    self.terminal.append(
+                        f"\n[Replace] Error reloading {file_path}: {e}\n"
+                    )
 
         self.update_git_status()
         if hasattr(self, "git_panel"):
@@ -1047,7 +1049,7 @@ class Phaino(QMainWindow):
             self.apply_diff_highlighting(editor)
 
         except subprocess.CalledProcessError as e:
-            print(f"Error generating diff: {e}")
+            self.terminal.append(f"\n[Git] Error generating diff: {e}\n")
 
     def apply_diff_highlighting(self, editor):
         if hasattr(editor, "highlighter") and editor.highlighter is not None:
@@ -1233,7 +1235,7 @@ class Phaino(QMainWindow):
                     pass
                 self.refresh_tree()
             except Exception as e:
-                print(f"Error creating file: {e}")
+                self.terminal.append(f"\n[File System] Error: {e}\n")
 
     def create_folder(self, pos):
         index = self.tree_view.indexAt(pos)
@@ -1251,7 +1253,7 @@ class Phaino(QMainWindow):
                 os.makedirs(new_path, exist_ok=True)
                 self.refresh_tree()
             except Exception as e:
-                print(f"Error creating folder: {e}")
+                self.terminal.append(f"\n[File System] Error: {e}\n")
 
     def rename_item(self):
         index = self.tree_view.currentIndex()
@@ -1272,7 +1274,7 @@ class Phaino(QMainWindow):
                 os.rename(old_path, new_path)
                 self.refresh_tree()
             except Exception as e:
-                print(f"Error renaming item: {e}")
+                self.terminal.append(f"\n[File System] Error: {e}\n")
 
     def delete_item(self):
         index = self.tree_view.currentIndex()
@@ -1298,7 +1300,7 @@ class Phaino(QMainWindow):
                     os.remove(path)
                 self.refresh_tree()
             except Exception as e:
-                print(f"Error deleting item: {e}")
+                self.terminal.append(f"\n[File System] Error: {e}\n")
 
     def refresh_tree(self):
         self.file_model.setRootPath("")
@@ -1437,7 +1439,7 @@ class Phaino(QMainWindow):
             self._add_recent_file(file_path)
 
         except Exception as e:
-            print(f"Error opening file: {e}")
+            self.terminal.append(f"\n[Error] Could not open file: {e}\n")
 
     def save_file(self) -> bool:
         editor = self.tabs.current_editor()
@@ -1469,7 +1471,7 @@ class Phaino(QMainWindow):
 
             return True
         except Exception as e:
-            print(f"Error saving file: {e}")
+            self.terminal.append(f"\n[Error] Could not save file: {e}\n")
             return False
 
     def save_file_as(self) -> bool:
@@ -1583,7 +1585,7 @@ class Phaino(QMainWindow):
                         subprocess.Popen([executable], cwd=path)
                     return
                 except Exception as e:
-                    print(f"Failed to launch {name}: {e}")
+                    self.terminal.append(f"\n[Terminal] Failed to launch {name}: {e}\n")
                     continue
 
         self.terminal.append(

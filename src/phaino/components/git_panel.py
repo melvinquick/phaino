@@ -2,7 +2,7 @@ import os
 import subprocess
 
 from PySide6.QtCore import Qt, Signal
-from PySide6.QtGui import QBrush, QColor, QFont
+from PySide6.QtGui import QBrush, QColor
 from PySide6.QtWidgets import (
     QHBoxLayout,
     QHeaderView,
@@ -22,10 +22,11 @@ class GitPanel(QWidget):
     diff_requested = Signal(str)
     repo_changed = Signal()
 
-    def __init__(self, theme_tokens, parent=None):
+    def __init__(self, theme_tokens, terminal, parent=None):
         super().__init__(parent)
         self.setObjectName("GitPanel")
         self.theme_tokens = theme_tokens
+        self.terminal = terminal
         self.working_dir = ""
 
         self.current_staged_files = []
@@ -103,13 +104,15 @@ class GitPanel(QWidget):
                 timeout=60,
             )
             if result.stderr.strip():
-                print(f"GIT STDERR ({' '.join(args)}): {result.stderr.strip()}")
+                self.terminal.append(
+                    f"\n[Git] {' '.join(args)}: {result.stderr.strip()}\n"
+                )
             return result.stdout.strip()
         except subprocess.TimeoutExpired:
-            print(f"GIT TIMEOUT: {' '.join(args)}")
+            self.terminal.append(f"\n[Git] Timeout: {' '.join(args)}\n")
             return ""
         except Exception as e:
-            print(f"GIT EXCEPTION: {e}")
+            self.terminal.append(f"\n[Git] Error: {e}\n")
             return ""
 
     def refresh(self):
@@ -159,10 +162,8 @@ class GitPanel(QWidget):
         current_row = 0
         header_color = QColor(self.theme_tokens.get("muted-color"))
 
-        # --- Staged Section ---
         if self.current_staged_files:
             header_item = QTableWidgetItem("Staged Changes")
-            header_item.setFont(QFont("Arial", 10, QFont.Bold))
             header_item.setForeground(QBrush(header_color))
             header_item.setFlags(Qt.ItemIsEnabled)
             self.changes_table.setItem(current_row, 0, header_item)
@@ -182,10 +183,8 @@ class GitPanel(QWidget):
                 self.changes_table.setItem(current_row, 1, item_status)
                 current_row += 1
 
-        # --- Unstaged Section ---
         if self.current_unstaged_files:
             header_item = QTableWidgetItem("Unstaged Changes")
-            header_item.setFont(QFont("Arial", 10, QFont.Bold))
             header_item.setForeground(QBrush(header_color))
             header_item.setFlags(Qt.ItemIsEnabled)
             self.changes_table.setItem(current_row, 0, header_item)
@@ -283,10 +282,12 @@ class GitPanel(QWidget):
     def push(self):
         branch = self.run_git(["rev-parse", "--abbrev-ref", "HEAD"])
         if not branch:
-            print("PUSH: could not determine current branch")
+            self.terminal.append(
+                "\n[Git] Could not determine current branch for push.\n"
+            )
             return
         result = self.run_git(["push", "--set-upstream", "origin", branch])
-        print(f"PUSH RESULT: {result!r}")
+        self.terminal.append(f"\n[Git] Push output:\n{result}\n")
         self.refresh()
         self.repo_changed.emit()
 
