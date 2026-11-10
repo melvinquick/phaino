@@ -43,6 +43,7 @@ from .components.highlighter_factory import get_highlighter
 from .components.preferences_dialog import PreferencesDialog
 from .components.projects_panel import ProjectsPanel
 from .components.qss_file_handler import QssFileHandler
+from .components.quick_open import QuickOpen
 from .components.search_panel import SearchPanel
 from .components.shortcuts_window import ShortcutsWindow
 from .components.tab_manager import TabManager
@@ -202,6 +203,11 @@ class Phaino(QMainWindow):
         open_action.setShortcut(QKeySequence.Open)
         open_action.triggered.connect(self.open_file)
         self.file_menu.addAction(open_action)
+
+        quick_open_action = QAction("&Quick Open...", self)
+        quick_open_action.setShortcut("Ctrl+P")
+        quick_open_action.triggered.connect(self.show_quick_open)
+        self.file_menu.addAction(quick_open_action)
 
         open_folder_action = QAction("Open &Folder...", self)
         open_folder_action.setShortcut("Ctrl+Shift+O")
@@ -824,6 +830,16 @@ class Phaino(QMainWindow):
         if editor:
             editor.setFocus()
             editor.insertPlainText(self._palette_clipboard_text)
+
+    def show_quick_open(self):
+        if not hasattr(self, "quick_open"):
+            self.quick_open = QuickOpen(self)
+            self.quick_open.file_selected.connect(self.load_file)
+
+        self.quick_open.populate(self.current_root)
+        self.quick_open.show()
+        self.quick_open.raise_()
+        self.quick_open.activateWindow()
 
     def show_preferences(self):
         dialog = PreferencesDialog(self.settings, themes, self)
