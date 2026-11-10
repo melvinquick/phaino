@@ -1,7 +1,16 @@
 import os
 import re
+import types
 
-from PySide6.QtCore import QPoint, QRect, QSize, QStringListModel, Qt, Signal
+from PySide6.QtCore import (
+    QPoint,
+    QRect,
+    QRegularExpression,
+    QSize,
+    QStringListModel,
+    Qt,
+    Signal,
+)
 from PySide6.QtGui import (
     QColor,
     QFont,
@@ -70,6 +79,8 @@ class CodeEditor(QPlainTextEdit):
         self.surface_color = self.theme_tokens.get("surface-color")
         self.show_trailing_ws = False
         self._show_line_numbers = True
+        self._main_highlighter = None
+        self._better_rules = []
 
         self.line_number_area = LineNumberArea(self)
         self.right_margin = RightMargin(self)
@@ -93,6 +104,86 @@ class CodeEditor(QPlainTextEdit):
         self.customContextMenuRequested.connect(self._show_context_menu)
 
         self.update_editor_preferences("Fira Code", 15, True, False, False)
+
+    @property
+    def highlighter(self):
+        return self._main_highlighter
+
+    @highlighter.setter
+    def highlighter(self, value):
+        if self._main_highlighter is not None:
+            # Restore original method if it was patched
+            if hasattr(self._main_highlighter, "_orig_highlightBlock"):
+                self._main_highlighter.highlightBlock = (
+                    self._main_highlighter._orig_highlightBlock
+                )
+                del self._main_highlighter._orig_highlightBlock
+
+        self._main_highlighter = value
+        if value is not None:
+            self._build_better_comments_rules()
+            self._apply_patch(value)
+            value.rehighlight()
+
+    @highlighter.deleter
+    def highlighter(self):
+        if self._main_highlighter is not None:
+            if hasattr(self._main_highlighter, "_orig_highlightBlock"):
+                self._main_highlighter.highlightBlock = (
+                    self._main_highlighter._orig_highlightBlock
+                )
+                del self._main_highlighter._orig_highlightBlock
+            self._main_highlighter.setDocument(None)
+        self._main_highlighter = None
+
+    def _build_better_comments_rules(self):
+        warning_color = self.theme_tokens.get("warning-color")
+        success_color = self.theme_tokens.get("success-color")
+        danger_color = self.theme_tokens.get("danger-color")
+        function_color = self.theme_tokens.get("function-color")
+
+        self._better_rules = []
+
+        todo_format = QTextCharFormat()
+        todo_format.setForeground(QColor(warning_color))
+        todo_format.setFontWeight(QFont.Weight.Bold)
+        self._better_rules.append((QRegularExpression(r"(#|//)\s*TODO.*"), todo_format))
+
+        alert_format = QTextCharFormat()
+        alert_format.setForeground(QColor(danger_color))
+        alert_format.setFontWeight(QFont.Weight.Bold)
+        self._better_rules.append((QRegularExpression(r"(#|//)\s*!.*"), alert_format))
+
+        query_format = QTextCharFormat()
+        query_format.setForeground(QColor(function_color))
+        self._better_rules.append((QRegularExpression(r"(#|//)\s*\?.*"), query_format))
+
+        star_format = QTextCharFormat()
+        star_format.setForeground(QColor(success_color))
+        self._better_rules.append((QRegularExpression(r"(#|//)\s*\*.*"), star_format))
+
+    def _apply_patch(self, highlighter_instance):
+        if not hasattr(highlighter_instance, "_orig_highlightBlock"):
+            # Bind the original method to the instance and save it
+            original_func = highlighter_instance.highlightBlock
+            highlighter_instance._orig_highlightBlock = types.MethodType(
+                original_func.__func__, highlighter_instance
+            )
+
+            # Create a new patched function bound to the instance
+            def patched_highlightBlock(this_highlighter, text):
+                this_highlighter._orig_highlightBlock(text)
+                for pattern, fmt in self._better_rules:
+                    match_iterator = pattern.globalMatch(text)
+                    while match_iterator.hasNext():
+                        match = match_iterator.next()
+                        this_highlighter.setFormat(
+                            match.capturedStart(), match.capturedLength(), fmt
+                        )
+
+            highlighter_instance.highlightBlock = types.MethodType(
+                patched_highlightBlock, highlighter_instance
+            )
 
     def _show_context_menu(self, pos: QPoint):
         menu = QMenu(self)
@@ -277,6 +368,11 @@ class CodeEditor(QPlainTextEdit):
         self.muted_color = self.theme_tokens.get("muted-color")
         self.surface_color = self.theme_tokens.get("widget-background-color")
 
+        if self._main_highlighter is not None:
+            self._build_better_comments_rules()
+            self._apply_patch(self._main_highlighter)
+            self._main_highlighter.rehighlight()
+
         self.line_number_area.update()
         self.right_margin.update()
         self._update_trailing_ws_highlight()
@@ -343,9 +439,9 @@ class CodeEditor(QPlainTextEdit):
                 if len(w) > 2 and w != current_word
             ]
         )
-        if hasattr(self, "highlighter") and self.highlighter is not None:
-            if hasattr(self.highlighter, "keywords"):
-                words.update(self.highlighter.keywords)
+        if self._main_highlighter is not None:
+            if hasattr(self._main_highlighter, "keywords"):
+                words.update(self._main_highlighter.keywords)
         self.completer.setModel(QStringListModel(sorted(list(words))))
 
     def insert_completion(self, completion):
