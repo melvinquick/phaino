@@ -8,17 +8,29 @@
   <a href="#useful-information">Useful Information</a>
 </div>
 
-<div align="center">
-  <a href="https://pypi.org/project/phaino/" style="text-decoration: none;">
-    <img src="https://img.shields.io/pypi/v/phaino?style=flat-square&labelColor=0D1117&color=F85149" alt="PyPI Version" height="28" style="vertical-align: middle; margin: 0 10px;">
-  </a>
-  <a href="https://alternativeto.net/software/phaino/about/" style="text-decoration: none;">
-    <img src="https://alternativeto.net/static/badges/badge-wide-dark.svg" alt="Phaino AlternativeTo" height="36" style="vertical-align: middle; margin: 0 10px;">
-  </a>
-  <a href="https://github.com/melvinquick/phaino" style="text-decoration: none;">
-    <img src="https://img.shields.io/badge/GitHub-181717?style=flat-square&logo=github&logoColor=white" alt="GitHub" height="28" style="vertical-align: middle; margin: 0 10px;">
-  </a>
-</div>
+<br>
+
+<table align="center" style="border: none; background-color: transparent;">
+  <tr>
+    <td style="border: none; padding: 0 10px;">
+      <a href="https://pypi.org/project/phaino/">
+        <img src="https://img.shields.io/pypi/v/phaino?style=flat-square&labelColor=0D1117&color=F85149" alt="PyPI Version" height="28">
+      </a>
+    </td>
+    <td style="border: none; padding: 0 10px;">
+      <a href="https://alternativeto.net/software/phaino/about/" style="text-decoration: none;">
+        <img src="https://alternativeto.net/static/badges/badge-wide-dark.svg" alt="Phaino AlternativeTo" height="36">
+      </a>
+    </td>
+    <td style="border: none; padding: 0 10px;">
+      <a href="https://github.com/melvinquick/phaino">
+        <img src="https://img.shields.io/badge/GitHub-181717?style=flat-square&logo=github&logoColor=white" alt="GitHub" height="28">
+      </a>
+    </td>
+  </tr>
+</table>
+
+<br>
 
 ## Donations
 
