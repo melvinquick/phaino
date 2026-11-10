@@ -10,7 +10,7 @@
 
 <br>
 
-<div align="center"><a href="https://pypi.org/project/phaino/"><img src="https://img.shields.io/pypi/v/phaino?style=flat-square&labelColor=0D1117&color=F85149" alt="PyPI Version" height="28"></a><img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" width="20" height="1"><a href="https://alternativeto.net/software/phaino/about/" style="text-decoration: none;"><img src="https://alternativeto.net/static/badges/badge-wide-dark.svg" alt="Phaino AlternativeTo" height="36"></a><img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" width="20" height="1"><a href="https://github.com/melvinquick/phaino"><img src="https://img.shields.io/badge/GitHub-181717?style=flat-square&logo=github&logoColor=white" alt="GitHub" height="28"></a></div>
+<div align="center"><a href="https://pypi.org/project/phaino/"><img src="https://img.shields.io/pypi/v/phaino?style=flat-square&labelColor=0D1117&color=F85149" alt="PyPI Version" height="36"></a><img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" width="20" height="1"><a href="https://alternativeto.net/software/phaino/about/" style="text-decoration: none;"><img src="https://alternativeto.net/static/badges/badge-wide-dark.svg" alt="Phaino AlternativeTo" height="36"></a><img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" width="20" height="1"><a href="https://github.com/melvinquick/phaino"><img src="https://img.shields.io/badge/GitHub-181717?style=flat-square&logo=github&logoColor=white" alt="GitHub" height="36"></a></div>
 
 <br>
 
