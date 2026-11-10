@@ -10,20 +10,8 @@
 
 <br>
 
-<div align="center" style="display: flex; justify-content: center; align-items: center; gap: 15px;">
-  <a href="https://pypi.org/project/phaino/">
-    <img src="https://img.shields.io/pypi/v/phaino?style=flat-square&labelColor=0D1117&color=F85149" alt="PyPI Version" height="28" style="display: block;">
-  </a>
-  <a href="https://alternativeto.net/software/phaino/about/?utm_source=badge&utm_medium=referral" target="_blank">
-    <img src="https://alternativeto.net/static/badges/badge-wide-dark.svg"
-         alt="Phaino | AlternativeTo"
-         height="36"
-         style="display: block;">
-  </a>
-  <a href="https://github.com/melvinquick/phaino">
-    <img src="https://img.shields.io/badge/GitHub-181717?style=flat-square&logo=github&logoColor=white" alt="GitHub" height="28" style="display: block;">
-  </a>
-</div>
+| [<img src="https://img.shields.io/pypi/v/phaino?style=flat-square&labelColor=0D1117&color=F85149" alt="PyPI Version" height="28">](https://pypi.org/project/phaino/) | [<img src="https://alternativeto.net/static/badges/badge-wide-dark.svg" alt="Phaino | AlternativeTo" height="36">](https://alternativeto.net/software/phaino/about/?utm_source=badge&utm_medium=referral) | [<img src="https://img.shields.io/badge/GitHub-181717?style=flat-square&logo=github&logoColor=white" alt="GitHub" height="28">](https://github.com/melvinquick/phaino) |
+| :------------------------------------------------------------------------------------------------------------------------------------------------------------------: | :---------------------------------------------------------------------------------: | :-----------------------------------------------------------------------------------------------------------------: | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 
 <br>
 
