@@ -115,7 +115,6 @@ class Phaino(QMainWindow):
 
         self._ignore_watch_paths = set()
         self._watch_cooldowns = {}
-        self._ignore_watch_paths = set()
 
         self.init_ui()
 
