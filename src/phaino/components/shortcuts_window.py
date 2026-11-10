@@ -96,6 +96,7 @@ class ShortcutsWindow(QDialog):
         shortcuts = [
             ("File Operations", None),
             ("Ctrl+O", "Open File"),
+            ("Ctrl+P", "Quick Open File"),
             ("Ctrl+Shift+O", "Open Folder"),
             ("Ctrl+S", "Save File"),
             ("Ctrl+Shift+S", "Save As..."),
