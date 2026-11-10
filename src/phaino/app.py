@@ -1,9 +1,10 @@
 import os
 import shutil
 import subprocess
+import time
 from sys import argv, exit
 
-from PySide6.QtCore import QDir, QRegularExpression, QSettings, Qt
+from PySide6.QtCore import QDir, QFileSystemWatcher, QRegularExpression, QSettings, Qt
 from PySide6.QtGui import (
     QAction,
     QColor,
@@ -111,6 +112,10 @@ class Phaino(QMainWindow):
             self.current_root = os.getcwd()
 
         self.drag_position = None
+
+        self._ignore_watch_paths = set()
+        self._watch_cooldowns = {}
+        self._ignore_watch_paths = set()
 
         self.init_ui()
 
@@ -471,6 +476,8 @@ class Phaino(QMainWindow):
         self.update_window_title()
         self.update_cursor_position(self.tabs.current_editor())
         self.update_git_status()
+        self.file_watcher = QFileSystemWatcher(self)
+        self.file_watcher.fileChanged.connect(self._on_file_changed)
         self._apply_editor_preferences()
 
     # ==========================================
@@ -1425,6 +1432,9 @@ class Phaino(QMainWindow):
             if self.tabs.currentIndex() >= 0:
                 self._update_breadcrumbs(file_path)
 
+            if file_path not in self.file_watcher.files():
+                self.file_watcher.addPath(file_path)
+
             self._add_recent_file(file_path)
 
         except Exception as e:
@@ -1441,9 +1451,15 @@ class Phaino(QMainWindow):
 
         self._format_editor(editor, force=False)
 
+        self._watch_cooldowns[file_path] = time.time()
+
         try:
+            self._ignore_watch_paths.add(file_path)
+
             with open(file_path, "w", encoding="utf-8") as file:
                 file.write(editor.toPlainText())
+
+            self._ignore_watch_paths.discard(file_path)
 
             editor.document().setModified(False)
             self.update_window_title()
@@ -1628,6 +1644,64 @@ class Phaino(QMainWindow):
     def _clear_recent_files(self):
         self._save_recent_files([])
         self._refresh_recent_menu()
+
+    def _on_file_changed(self, file_path):
+        if file_path in self._ignore_watch_paths:
+            return
+
+        # Check cooldown to prevent double-prompting from OS write events
+        now = time.time()
+        if file_path in self._watch_cooldowns:
+            if now - self._watch_cooldowns[file_path] < 1.0:
+                return
+        self._watch_cooldowns[file_path] = now
+
+        # Some editors delete and recreate the file on save, which drops the watch.
+        if os.path.exists(file_path) and file_path not in self.file_watcher.files():
+            self.file_watcher.addPath(file_path)
+
+        for i in range(self.tabs.count()):
+            # ... (the rest of your for-loop stays exactly the same)
+            editor = self.tabs.widget(i)
+            if getattr(editor, "file_path", None) == file_path:
+                self.tabs.setCurrentIndex(i)
+
+                msg_box = QMessageBox(self)
+                msg_box.setWindowTitle("File Changed")
+                msg_box.setText(
+                    f"{os.path.basename(file_path)} has changed on disk. Do you want to reload it?"
+                )
+                msg_box.setStandardButtons(QMessageBox.Yes | QMessageBox.No)
+                msg_box.setDefaultButton(QMessageBox.Yes)
+
+                if msg_box.exec() == QMessageBox.Yes:
+                    try:
+                        self._ignore_watch_paths.add(file_path)
+                        with open(file_path, "r", encoding="utf-8") as f:
+                            content = f.read()
+
+                        cursor_pos = editor.textCursor().position()
+                        editor.blockSignals(True)
+                        editor.setPlainText(content)
+                        editor.blockSignals(False)
+
+                        cursor = editor.textCursor()
+                        cursor.setPosition(min(cursor_pos, len(content)))
+                        editor.setTextCursor(cursor)
+
+                        editor.document().setModified(False)
+
+                        if (
+                            hasattr(editor, "highlighter")
+                            and editor.highlighter is not None
+                        ):
+                            editor.highlighter.rehighlight()
+
+                    except Exception as e:
+                        self.terminal.append(f"\n[Error] Could not reload file: {e}\n")
+                    finally:
+                        self._ignore_watch_paths.discard(file_path)
+                break
 
     # ==========================================
     # WINDOW CONTROL
