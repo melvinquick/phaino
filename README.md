@@ -1,4 +1,4 @@
-<p align="center"> <img src="src/phaino/resources/images/phaino_bg_256.png" /> </p>
+<p align="center"> <img src="src/phaino/resources/images/phaino_bg_256.png" width="200" /> </p>
 
 <div align="center">
   <a href="#donations">Donations</a> | 
@@ -7,6 +7,27 @@
   <a href="#installation">Installation</a> | 
   <a href="#useful-information">Useful Information</a>
 </div>
+
+<br>
+
+<div align="center">
+  <a href="https://pypi.org/project/phaino/">
+    <img src="https://img.shields.io/pypi/v/phaino?style=flat-square&labelColor=0D1117&color=F85149" alt="PyPI Version" height="28" style="vertical-align: middle;">
+  </a>
+  &nbsp;&nbsp;
+  <a href="https://alternativeto.net/software/phaino/about/?utm_source=badge&utm_medium=referral" target="_blank">
+    <img src="https://alternativeto.net/static/badges/badge-wide-dark.svg"
+         alt="Phaino | AlternativeTo"
+         height="36"
+         style="vertical-align: middle;">
+  </a>
+  &nbsp;&nbsp;
+  <a href="https://github.com/melvinquick/phaino">
+    <img src="https://img.shields.io/badge/GitHub-181717?style=flat-square&logo=github&logoColor=white" alt="GitHub" height="28" style="vertical-align: middle;">
+  </a>
+</div>
+
+<br>
 
 ## Donations
 

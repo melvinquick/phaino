@@ -73,3 +73,16 @@
 
 - Fixed the Markdown comment toggle inserting `#` (a heading marker) instead of doing nothing; Markdown has no line-comment syntax, so the toggle is now a no-op there
 - Fixed the editor gutter margin being reserved even when line numbers were hidden
+
+## 0.5.0 (10 Nov 2026)
+
+### New Features
+
+- Added Quick Open (`Ctrl+P`) to jump directly to any file in the current project using fuzzy search
+- Added Better Comments, which highlight `TODO`, `!`, `?`, and `*` prefixed comments in distinct theme-aware colors
+- Added automatic detection of external file changes with a prompt to reload the affected file
+
+### Improvements
+
+- Background errors (Git operations, file operations, formatter failures, terminal launch issues) now report to the built-in terminal panel instead of being silently swallowed
+- Added the Quick Open shortcut to the in-app Keyboard Shortcuts window
