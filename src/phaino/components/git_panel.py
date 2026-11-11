@@ -103,10 +103,9 @@ class GitPanel(QWidget):
                 text=True,
                 timeout=60,
             )
-            if result.stderr.strip():
-                self.terminal.append(
-                    f"\n[Git] {' '.join(args)}: {result.stderr.strip()}\n"
-                )
+            if result.returncode != 0:
+                error_msg = result.stderr.strip() or result.stdout.strip()
+                self.terminal.append(f"\n[Git Error] {' '.join(args)}\n{error_msg}\n")
             return result.stdout.strip()
         except subprocess.TimeoutExpired:
             self.terminal.append(f"\n[Git] Timeout: {' '.join(args)}\n")
@@ -286,8 +285,16 @@ class GitPanel(QWidget):
                 "\n[Git] Could not determine current branch for push.\n"
             )
             return
+
+        self.terminal.append(f"\n[Git] Pushing to origin {branch}...\n")
+
         result = self.run_git(["push", "--set-upstream", "origin", branch])
-        self.terminal.append(f"\n[Git] Push output:\n{result}\n")
+
+        if not result and "rejected" not in self.terminal.toPlainText():
+            self.terminal.append("[Git] Push complete (already up to date).\n")
+        else:
+            self.terminal.append("[Git] Push complete.\n")
+
         self.refresh()
         self.repo_changed.emit()
 
