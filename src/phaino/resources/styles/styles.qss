@@ -714,3 +714,37 @@ QPushButton#WindowDot {
     font-size: {{font-size-md}};
     border-radius: 4px;
 }
+
+/* =========================================
+   ABOUT DIALOG
+   ========================================= */
+
+#AboutDialog {
+    background-color: {{background-color}};
+}
+
+#AboutDialog QLabel {
+    color: {{color}};
+    background-color: transparent;
+}
+
+#AboutDialog QLabel#AppName {
+    font-size: 24px;
+    font-weight: bold;
+    margin-top: 10px;
+}
+
+#AboutDialog QLabel#AppVersion {
+    font-size: 14px;
+    color: {{muted-color}};
+}
+
+#AboutDialog QLabel#AppAuthor, 
+#AboutDialog QLabel#AppLicense {
+    font-size: 13px;
+    color: {{color}};
+}
+
+#AboutDialog QLabel#LinkLabel {
+    font-size: 13px;
+}

@@ -17,52 +17,6 @@ class AboutDialog(QDialog):
         self.setFixedSize(400, 450)
         self.setObjectName("AboutDialog")
 
-        bg_color = theme_tokens.get("background-color")
-        color = theme_tokens.get("color")
-        muted = theme_tokens.get("muted-color")
-        surface = theme_tokens.get("surface-color")
-        accent = theme_tokens.get("accent-color")
-
-        self.setStyleSheet(f"""
-            QDialog {{
-                background-color: {bg_color};
-            }}
-            QLabel {{
-                color: {color};
-                background-color: transparent;
-            }}
-            QLabel#AppName {{
-                font-size: 24px;
-                font-weight: bold;
-                margin-top: 10px;
-            }}
-            QLabel#AppVersion {{
-                font-size: 14px;
-                color: {muted};
-            }}
-            QLabel#AppAuthor, QLabel#AppLicense {{
-                font-size: 13px;
-                color: {color};
-            }}
-            QLabel#LinkLabel {{
-                color: {accent};
-                font-size: 13px;
-            }}
-            QPushButton#PrimaryButton {{
-                background-color: {surface};
-                color: {color};
-                border: 1px solid {muted};
-                border-radius: 4px;
-                padding: 8px 24px;
-                font-weight: bold;
-            }}
-            QPushButton#PrimaryButton:hover {{
-                background-color: {accent};
-                color: white;
-                border: 1px solid {accent};
-            }}
-        """)
-
         layout = QVBoxLayout(self)
         layout.setContentsMargins(30, 30, 30, 30)
         layout.setAlignment(Qt.AlignTop | Qt.AlignHCenter)
@@ -86,7 +40,7 @@ class AboutDialog(QDialog):
 
         app_license = meta.get("License-Expression") or meta.get("License")
         if not app_license or app_license == "UNKNOWN":
-            app_license = "MIT"  # Fallback
+            app_license = "MIT"
 
         version_label = QLabel(f"Version {app_version}")
         version_label.setObjectName("AppVersion")
@@ -103,6 +57,7 @@ class AboutDialog(QDialog):
         license_label.setAlignment(Qt.AlignCenter)
         layout.addWidget(license_label)
 
+        accent = theme_tokens.get("accent-color")
         links_html = (
             f'<a href="https://github.com/melvinquick/phaino" style="color: {accent}; text-decoration: none;">GitHub Repository</a>'
             " &nbsp;|&nbsp; "
