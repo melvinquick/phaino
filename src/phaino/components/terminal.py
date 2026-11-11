@@ -13,6 +13,7 @@ from PySide6.QtWidgets import (
 class TerminalWidget(QWidget):
     def __init__(self, theme_tokens, parent=None):
         super().__init__(parent)
+        self.setMinimumHeight(100)
         self.theme_tokens = theme_tokens
         self.last_sent_input = None
 

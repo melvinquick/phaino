@@ -456,6 +456,8 @@ class Phaino(QMainWindow):
         self.editor_splitter.setSizes([0, 0, 600, 200])
         self.editor_splitter.setCollapsible(0, False)
         self.editor_splitter.setCollapsible(1, False)
+        self.editor_splitter.setCollapsible(2, False)
+        self.editor_splitter.setCollapsible(3, False)
 
         self.editor_container = QWidget()
         self.editor_container.setObjectName("EditorContainer")
