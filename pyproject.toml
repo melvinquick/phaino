@@ -2,7 +2,7 @@
 name = "phaino"
 version = "0.5.0"
 description = "Focused IDE for the minimalist developer."
-readme = "src/phaino/resources/PYPI_README.md"
+readme = "README.md"
 authors = [{ name = "Melvin Quick", email = "melvinquick@proton.me" }]
 requires-python = ">=3.11"
 dependencies = ["pyside6>=6.12.0", "pyyaml>=6.0.3"]

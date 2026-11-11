@@ -1,16 +1,28 @@
-<p align="center"> <img src="src/phaino/resources/images/phaino_bg_256.png" width="200" /> </p>
+<p align="center"> <img src="https://raw.githubusercontent.com/melvinquick/phaino/main/src/phaino/resources/images/phaino_bg_256.png" /> </p>
 
 <div align="center">
-  <a href="#donations">Donations</a> | 
-  <a href="#about">About</a> | 
-  <a href="#purpose">Purpose</a> | 
-  <a href="#installation">Installation</a> | 
-  <a href="#useful-information">Useful Information</a>
+  <a href="https://github.com/melvinquick/phaino#donations">Donations</a> | 
+  <a href="https://github.com/melvinquick/phaino#about">About</a> | 
+  <a href="https://github.com/melvinquick/phaino#purpose">Purpose</a> | 
+  <a href="https://github.com/melvinquick/phaino#installation">Installation</a> | 
+  <a href="https://github.com/melvinquick/phaino#useful-information">Useful Information</a>
 </div>
 
 <br>
 
-<div align="center"><a href="https://pypi.org/project/phaino/"><img src="https://img.shields.io/pypi/v/phaino?style=flat-square&labelColor=0D1117&color=F85149" alt="PyPI Version" height="36"></a><img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" width="20" height="1"><a href="https://alternativeto.net/software/phaino/about/" style="text-decoration: none;"><img src="https://alternativeto.net/static/badges/badge-wide-dark.svg" alt="Phaino AlternativeTo" height="36"></a><img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" width="20" height="1"><a href="https://github.com/melvinquick/phaino"><img src="https://img.shields.io/badge/GitHub-181717?style=flat-square&logo=github&logoColor=white" alt="GitHub" height="36"></a></div>
+<div align="center">
+  <a href="https://pypi.org/project/phaino/">
+    <img src="https://img.shields.io/badge/PyPI-v0.5.0-F85149?style=flat-square&labelColor=0D1117&logo=pypi&logoColor=FFFFFF&label=PyPI&color=F85149" alt="PyPI Version" height="32">
+  </a>
+  <img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" width="20" height="1">
+  <a href="https://alternativeto.net/software/phaino/about/">
+    <img src="https://img.shields.io/badge/AlternativeTo-58A6FF?style=flat-square&logo=alternativeto&logoColor=FFFFFF&labelColor=58A6FF" alt="AlternativeTo" height="32">
+  </a>
+  <img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" width="20" height="1">
+  <a href="https://github.com/melvinquick/phaino">
+    <img src="https://img.shields.io/badge/GitHub-0D1117?style=flat-square&logo=github&logoColor=FFFFFF&labelColor=0D1117" alt="GitHub" height="32">
+  </a>
+</div>
 
 <br>
 
@@ -37,7 +49,10 @@ Every time I've tried to find a "lightweight IDE" for myself (kind of thinking f
 :white_check_mark: Project saving and session restore  
 :white_check_mark: Syntax highlighting for various languages  
 :white_check_mark: Formatting for various languages (see [Formatting](#formatting) below)  
-:white_check_mark: Multiple themes for accessibility
+:white_check_mark: Multiple themes for accessibility  
+:white_check_mark: Quick Open (`Ctrl+P`) for fast file navigation  
+:white_check_mark: "Better Comments" highlighting for TODOs, alerts, and queries  
+:white_check_mark: External file change detection with reload prompt
 
 ## Installation
 
@@ -89,7 +104,7 @@ terminal emulator in that directory.
 
 ### Formatting
 
-Phaino uses external formatters and does not bundle them. Format on save is optional and can be toggled per language under **Settings → Formatting**.
+Phaino uses external formatters and does not bundle them. Format on save is optional and can be toggled per language under **Preferences > Formatting**.
 
 > I realize formatting/formatters are very opinionated, but these are what are on offer for Phaino right now. Installation is left to the user (Phaino only invokes formatters already on your `PATH`). If one isn't found, you'll get a one-time warning in the terminal panel.
 
