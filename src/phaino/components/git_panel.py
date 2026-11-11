@@ -62,6 +62,7 @@ class GitPanel(QWidget):
         commit_label = QLabel("Commit Message:")
         commit_label.setObjectName("CommitMessageLabel")
         layout.addWidget(commit_label)
+
         self.commit_input = QTextEdit()
         self.commit_input.setPlaceholderText("Enter commit message...")
         self.commit_input.setFixedHeight(60)
@@ -71,9 +72,11 @@ class GitPanel(QWidget):
 
         row1 = QHBoxLayout()
         self.btn_pull = QPushButton("Pull")
+        self.btn_pull.setObjectName("PrimaryButton")
         self.btn_pull.clicked.connect(self.pull)
 
         self.btn_push = QPushButton("Push")
+        self.btn_push.setObjectName("PrimaryButton")
         self.btn_push.clicked.connect(self.push)
 
         row1.addWidget(self.btn_pull)
@@ -81,6 +84,7 @@ class GitPanel(QWidget):
 
         row2 = QHBoxLayout()
         self.btn_stage_toggle = QPushButton("Stage All")
+        self.btn_stage_toggle.setObjectName("PrimaryButton")
         self.btn_stage_toggle.clicked.connect(self.toggle_stage_all)
 
         self.btn_commit = QPushButton("Commit")
@@ -88,6 +92,7 @@ class GitPanel(QWidget):
         self.btn_commit.clicked.connect(self.commit)
 
         self.btn_undo = QPushButton("Undo")
+        self.btn_undo.setObjectName("PrimaryButton")
         self.btn_undo.clicked.connect(self.undo_commit)
 
         row2.addWidget(self.btn_stage_toggle)
@@ -295,7 +300,6 @@ class GitPanel(QWidget):
             return
 
         self.terminal.append(f"\n[Git] Pushing to origin {branch}...\n")
-
         result = self.run_git(["push", "--set-upstream", "origin", branch])
 
         if not result and "rejected" not in self.terminal.toPlainText():
