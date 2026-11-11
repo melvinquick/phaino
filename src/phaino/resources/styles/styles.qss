@@ -662,16 +662,6 @@ QPushButton#WindowDot {
     border-radius: 4px;
 }
 
-#GitPanel QPushButton#PrimaryButton {
-    background-color: {{accent-color}};
-    color: {{accent-text-color}};
-    font-weight: bold;
-}
-
-#GitPanel QPushButton#PrimaryButton:hover {
-    background-color: {{accent-hover-color}};
-}
-
 #GitPanel QLabel#CommitMessageLabel {
     color: {{color}};
     font-size: {{font-size-sm}};
