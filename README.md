@@ -3,7 +3,6 @@
 </p>
 
 <div align="center">
-  <a href="https://github.com/melvinquick/phaino#donations">Donations</a> | 
   <a href="https://github.com/melvinquick/phaino#about">About</a> | 
   <a href="https://github.com/melvinquick/phaino#purpose">Purpose</a> | 
   <a href="https://github.com/melvinquick/phaino#installation">Installation</a> | 
@@ -12,14 +11,11 @@
 
 <br>
 
-<p align="center"><a href="https://pypi.org/project/phaino/"><img src="https://img.shields.io/badge/PyPI-v0.5.0-F85149?style=for-the-badge&labelColor=0D1117&logo=pypi&logoColor=FFFFFF&label=PyPI&color=F85149" alt="PyPI Version"></a>&nbsp;&nbsp;<a href="https://alternativeto.net/software/phaino/about/"><img src="https://img.shields.io/badge/AlternativeTo-58A6FF?style=for-the-badge&logo=alternativeto&logoColor=FFFFFF&labelColor=58A6FF" alt="AlternativeTo"></a>&nbsp;&nbsp;<a href="https://github.com/melvinquick/phaino"><img src="https://img.shields.io/badge/GitHub-0D1117?style=for-the-badge&logo=github&logoColor=FFFFFF&labelColor=0D1117" alt="GitHub"></a></p>
+<p align="center"><a href="https://pypi.org/project/phaino/"><img src="https://img.shields.io/badge/PyPI-v0.5.0-F85149?style=for-the-badge&labelColor=F85149&logo=pypi&logoColor=FFFFFF&color=F85149" alt="PyPI Version"></a>&nbsp;&nbsp;<a href="https://alternativeto.net/software/phaino/about/"><img src="https://img.shields.io/badge/AlternativeTo-58A6FF?style=for-the-badge&labelColor=58A6FF&logo=alternativeto&logoColor=FFFFFF&color=58A6FF" alt="AlternativeTo"></a>&nbsp;&nbsp;<a href="https://github.com/melvinquick/phaino"><img src="https://img.shields.io/badge/GitHub-21262D?style=for-the-badge&labelColor=21262D&logo=github&logoColor=FFFFFF&color=21262D" alt="GitHub"></a></p>
+
+<p align="center"><a href="https://ko-fi.com/melvinquick"><img src="https://img.shields.io/badge/Ko--fi-FFA657?style=for-the-badge&labelColor=FFA657&logo=kofi&logoColor=FFFFFF&color=FFA657" alt="Ko-fi"></a>&nbsp;&nbsp;<a href="https://github.com/sponsors/melvinquick"><img src="https://img.shields.io/badge/GitHub%20Sponsors-D2A8FF?style=for-the-badge&labelColor=D2A8FF&logo=githubsponsors&logoColor=FFFFFF&color=D2A8FF" alt="GitHub Sponsors"></a></p>
 
 <br>
-
-## Donations
-
-[Ko-fi](https://ko-fi.com/melvinquick)  
-[GitHub Sponsors](https://github.com/sponsors/melvinquick)
 
 ## About
 
@@ -33,16 +29,16 @@ Every time I've tried to find a "lightweight IDE" for myself (kind of thinking f
 
 ### Features
 
-:white_check_mark: Search and replace across files with per-file review  
-:white_check_mark: Integrated "terminal" for running scripts  
-:white_check_mark: Basic Git integration with diff viewer  
-:white_check_mark: Project saving and session restore  
-:white_check_mark: Syntax highlighting for various languages  
-:white_check_mark: Formatting for various languages (see [Formatting](#formatting) below)  
-:white_check_mark: Multiple themes for accessibility  
-:white_check_mark: Quick Open (`Ctrl+P`) for fast file navigation  
-:white_check_mark: "Better Comments" highlighting for TODOs, alerts, and queries  
-:white_check_mark: External file change detection with reload prompt
+✅ Search and replace across files with per-file review  
+✅ Integrated "terminal" for running scripts  
+✅ Basic Git integration with diff viewer  
+✅ Project saving and session restore  
+✅ Syntax highlighting for various languages  
+✅ Formatting for various languages (see [Formatting](#formatting) below)  
+✅ Multiple themes for accessibility  
+✅ Quick Open (`Ctrl+P`) for fast file navigation  
+✅ "Better Comments" highlighting for TODOs, alerts, and queries  
+✅ External file change detection with reload prompt
 
 ## Installation
 
@@ -54,9 +50,9 @@ curl -s https://raw.githubusercontent.com/melvinquick/phaino/main/install.py | p
 
 ### Supported Operating Systems
 
-:white_check_mark: Linux  
-:x: Mac  
-:x: Windows
+✅ Linux  
+❌ Mac  
+❌ Windows
 
 ## Useful Information
 
