@@ -414,6 +414,7 @@ class Phaino(QMainWindow):
         self.git_panel.file_selected.connect(self.load_file)
         self.git_panel.diff_requested.connect(self.show_diff)
         self.git_panel.repo_changed.connect(self.update_git_status)
+        self.git_panel.repo_changed.connect(self.refresh_tree)
         self.git_panel.set_working_dir(self.current_root)
 
         self.projects_panel = ProjectsPanel(self.settings, self.theme_tokens)
