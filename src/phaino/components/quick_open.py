@@ -54,17 +54,16 @@ class QuickOpen(QDialog):
             "venv",
             "dist",
             "build",
+            ".mypy_cache",
+            ".ruff_cache",
         }
 
         for root, dirs, files in os.walk(self.root_path):
-            dirs[:] = [
-                d for d in dirs if not d.startswith(".") and d not in ignore_dirs
-            ]
+            dirs[:] = [d for d in dirs if d not in ignore_dirs]
             for file in files:
-                if not file.startswith("."):
-                    full_path = os.path.join(root, file)
-                    rel_path = os.path.relpath(full_path, self.root_path)
-                    self.all_files.append((file, rel_path, full_path))
+                full_path = os.path.join(root, file)
+                rel_path = os.path.relpath(full_path, self.root_path)
+                self.all_files.append((file, rel_path, full_path))
 
         self.all_files.sort(key=lambda x: x[1].lower())
 

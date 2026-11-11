@@ -85,12 +85,20 @@ class SearchPanel(QWidget):
             return
 
         self.results_tree.clear()
-        IGNORE_DIRS = {"__pycache__", "node_modules", ".venv", ".git"}
+        IGNORE_DIRS = {
+            ".git",
+            "__pycache__",
+            "node_modules",
+            ".venv",
+            "venv",
+            "dist",
+            "build",
+            ".mypy_cache",
+            ".ruff_cache",
+        }
 
         for root, dirs, files in os.walk(self.current_root):
-            dirs[:] = [
-                d for d in dirs if not d.startswith(".") and d not in IGNORE_DIRS
-            ]
+            dirs[:] = [d for d in dirs if d not in IGNORE_DIRS]
 
             for file in files:
                 file_path = os.path.join(root, file)

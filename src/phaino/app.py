@@ -19,6 +19,7 @@ from PySide6.QtGui import (
 from PySide6.QtWidgets import (
     QApplication,
     QFileDialog,
+    QFileSystemModel,
     QGridLayout,
     QHBoxLayout,
     QInputDialog,
@@ -350,7 +351,8 @@ class Phaino(QMainWindow):
         # * Create Widgets
         self.file_model = GitFileSystemModel(self.theme_tokens)
         self.file_model.setRootPath(self.current_root)
-        self.file_model.setFilter(QDir.NoDotAndDotDot | QDir.AllEntries)
+        self.file_model.setFilter(QDir.NoDotAndDotDot | QDir.AllEntries | QDir.Hidden)
+        self.file_model.setOption(QFileSystemModel.DontWatchForChanges, False)
 
         self.tree_view = QTreeView()
         self.tree_view.setModel(self.file_model)
