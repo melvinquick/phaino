@@ -35,6 +35,7 @@ from PySide6.QtWidgets import (
     QWidget,
 )
 
+from .components.about_dialog import AboutDialog
 from .components.command_palette import CommandPalette
 from .components.find_replace import FindReplaceWidget
 from .components.formatter_factory import format_code
@@ -341,6 +342,10 @@ class Phaino(QMainWindow):
         shortcuts_action.setShortcut("F1")
         shortcuts_action.triggered.connect(self.show_shortcuts)
         self.help_menu.addAction(shortcuts_action)
+
+        about_action = QAction("&About Phaino", self)
+        about_action.triggered.connect(self.show_about)
+        self.help_menu.addAction(about_action)
 
         # * Create Widgets
         self.file_model = GitFileSystemModel(self.theme_tokens)
@@ -1115,6 +1120,13 @@ class Phaino(QMainWindow):
 
     def show_shortcuts(self):
         dialog = ShortcutsWindow(self.theme_tokens, self)
+        dialog.exec()
+
+    def show_about(self):
+        logo_path = os.path.join(
+            os.path.dirname(__file__), "resources", "images", "phaino_bg_256.png"
+        )
+        dialog = AboutDialog(self.theme_tokens, logo_path, self)
         dialog.exec()
 
     def toggle_line_wrap(self):
