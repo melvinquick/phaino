@@ -10,25 +10,11 @@
 
 <br>
 
-<table align="center" style="border: none; background-color: transparent;">
-  <tr>
-    <td style="border: none; padding: 0 10px;">
-      <a href="https://pypi.org/project/phaino/">
-        <img src="https://img.shields.io/badge/PyPI-v0.5.0-F85149?style=flat-square&labelColor=0D1117&logo=pypi&logoColor=FFFFFF&label=PyPI&color=F85149" alt="PyPI Version" height="32">
-      </a>
-    </td>
-    <td style="border: none; padding: 0 10px;">
-      <a href="https://alternativeto.net/software/phaino/about/">
-        <img src="https://img.shields.io/badge/AlternativeTo-58A6FF?style=flat-square&logo=alternativeto&logoColor=FFFFFF&labelColor=58A6FF" alt="AlternativeTo" height="32">
-      </a>
-    </td>
-    <td style="border: none; padding: 0 10px;">
-      <a href="https://github.com/melvinquick/phaino">
-        <img src="https://img.shields.io/badge/GitHub-0D1117?style=flat-square&logo=github&logoColor=FFFFFF&labelColor=0D1117" alt="GitHub" height="32">
-      </a>
-    </td>
-  </tr>
-</table>
+<p align="center">
+  <a href="https://pypi.org/project/phaino/">
+    <img src="https://img.shields.io/badge/PyPI-v0.5.0-F85149?style=flat-square&labelColor=0D1117&logo=pypi&logoColor=FFFFFF&label=PyPI&color=F85149" alt="PyPI Version" height="28">
+  </a> &nbsp; <a href="https://alternativeto.net/software/phaino/about/"><img src="https://img.shields.io/badge/AlternativeTo-58A6FF?style=flat-square&logo=alternativeto&logoColor=FFFFFF&labelColor=58A6FF" alt="AlternativeTo" height="28"></a> &nbsp; <a href="https://github.com/melvinquick/phaino"><img src="https://img.shields.io/badge/GitHub-0D1117?style=flat-square&logo=github&logoColor=FFFFFF&labelColor=0D1117" alt="GitHub" height="28"></a>
+</p>
 
 <br>
 
