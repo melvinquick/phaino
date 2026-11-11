@@ -1086,9 +1086,26 @@ class Phaino(QMainWindow):
 
         self.save_file()
 
+        args, ok = QInputDialog.getText(
+            self, "Run File", "Arguments (optional):", text=""
+        )
+
+        if not ok:
+            return
+
         working_dir = os.path.dirname(file_path)
 
-        self.terminal.run_command([file_path], working_directory=working_dir)
+        command = [file_path]
+        if args.strip():
+            import shlex
+
+            try:
+                command.extend(shlex.split(args))
+            except ValueError:
+                # Fallback to simple split if quotes are unbalanced
+                command.extend(args.split())
+
+        self.terminal.run_command(command, working_directory=working_dir)
 
     # ==========================================
     # EDIT ACTIONS
