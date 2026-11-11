@@ -672,6 +672,12 @@ QPushButton#WindowDot {
     background-color: {{accent-hover-color}};
 }
 
+#GitPanel QLabel#CommitMessageLabel {
+    color: {{color}};
+    font-size: {{font-size-sm}};
+    margin-top: 5px;
+}
+
 /* =========================================
    PROJECTS PANEL
    ========================================= */

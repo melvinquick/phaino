@@ -442,7 +442,10 @@ class Phaino(QMainWindow):
         self.sidebar_tabs.addTab(explorer_tab, "Explorer")
         self.sidebar_tabs.addTab(self.git_panel, "Source Control")
         self.sidebar_tabs.addTab(self.projects_panel, "Projects")
-        self.sidebar_tabs.setMinimumWidth(self.sidebar_tabs.tabBar().sizeHint().width())
+        tab_widths = sum(
+            self.sidebar_tabs.tabBar().tabRect(i).width() for i in range(3)
+        )
+        self.sidebar_tabs.setMinimumWidth(tab_widths + 20)
 
         self.editor_splitter = QSplitter(Qt.Vertical)
         self.editor_splitter.addWidget(self.find_widget)

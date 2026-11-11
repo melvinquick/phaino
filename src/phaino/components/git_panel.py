@@ -59,35 +59,43 @@ class GitPanel(QWidget):
 
         layout.addWidget(self.changes_table)
 
-        layout.addWidget(QLabel("Commit Message:"))
+        commit_label = QLabel("Commit Message:")
+        commit_label.setObjectName("CommitMessageLabel")
+        layout.addWidget(commit_label)
         self.commit_input = QTextEdit()
         self.commit_input.setPlaceholderText("Enter commit message...")
         self.commit_input.setFixedHeight(60)
         layout.addWidget(self.commit_input)
 
-        btn_layout = QHBoxLayout()
+        btn_layout = QVBoxLayout()
+
+        row1 = QHBoxLayout()
         self.btn_pull = QPushButton("Pull")
         self.btn_pull.clicked.connect(self.pull)
 
+        self.btn_push = QPushButton("Push")
+        self.btn_push.clicked.connect(self.push)
+
+        row1.addWidget(self.btn_pull)
+        row1.addWidget(self.btn_push)
+
+        row2 = QHBoxLayout()
         self.btn_stage_toggle = QPushButton("Stage All")
         self.btn_stage_toggle.clicked.connect(self.toggle_stage_all)
-        self.btn_stage_toggle.setFixedWidth(100)
 
         self.btn_commit = QPushButton("Commit")
         self.btn_commit.setObjectName("PrimaryButton")
         self.btn_commit.clicked.connect(self.commit)
 
-        self.btn_push = QPushButton("Push")
-        self.btn_push.clicked.connect(self.push)
-
-        self.btn_undo = QPushButton("Undo Commit")
+        self.btn_undo = QPushButton("Undo")
         self.btn_undo.clicked.connect(self.undo_commit)
 
-        btn_layout.addWidget(self.btn_pull)
-        btn_layout.addWidget(self.btn_stage_toggle)
-        btn_layout.addWidget(self.btn_commit)
-        btn_layout.addWidget(self.btn_push)
-        btn_layout.addWidget(self.btn_undo)
+        row2.addWidget(self.btn_stage_toggle)
+        row2.addWidget(self.btn_commit)
+        row2.addWidget(self.btn_undo)
+
+        btn_layout.addLayout(row1)
+        btn_layout.addLayout(row2)
         layout.addLayout(btn_layout)
 
     def set_working_dir(self, path):
