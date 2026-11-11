@@ -84,7 +84,6 @@ class AboutDialog(QDialog):
         meta = metadata("phaino")
         app_version = meta.get("Version", "Unknown")
 
-        # Check both the old and new PEP 639 metadata keys for the license
         app_license = meta.get("License-Expression") or meta.get("License")
         if not app_license or app_license == "UNKNOWN":
             app_license = "MIT"  # Fallback
