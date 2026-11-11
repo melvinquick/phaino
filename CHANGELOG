@@ -86,3 +86,25 @@
 
 - Background errors (Git operations, file operations, formatter failures, terminal launch issues) now report to the built-in terminal panel instead of being silently swallowed
 - Added the Quick Open shortcut to the in-app Keyboard Shortcuts window
+
+## 0.6.0 (11 Nov 2026)
+
+### New Features
+
+- Added an About dialog (Help -> About Phaino) showing the app version, author, and license
+- Added the ability to pass command-line arguments when running a script (`Ctrl+R`)
+- The file explorer, Quick Open (`Ctrl+P`), and project-wide search now include hidden dotfiles and dot-directories (while still ignoring heavy folders like `.git` and `.venv`)
+
+### Improvements
+
+- Added verbose logging to the terminal panel for Git push operations (showing progress and clear error messages)
+- Staging, committing, or pulling changes in the Git panel now automatically refreshes the file explorer's modified file colors
+- Redesigned the Git panel's button layout to split into two rows, preventing overlap when the sidebar is resized, and unified button colors
+- Added a minimum width to the sidebar to prevent the tab labels from being crushed into an unreadable state
+- Added a minimum height to the terminal splitter to prevent it from snapping closed and off-screen
+- Updated the Solarized Light and Dark themes for better contrast on input fields, dropdowns, and line highlights
+
+### Bug Fixes
+
+- Fixed an issue where Git pushes would silently fail without providing feedback
+- Fixed the Commit Message label styling in the Git panel to match the rest of the panel

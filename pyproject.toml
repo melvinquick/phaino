@@ -1,6 +1,6 @@
 [project]
 name = "phaino"
-version = "0.5.0"
+version = "0.6.0"
 description = "Focused IDE for the minimalist developer."
 readme = "README.md"
 license = "MIT"
