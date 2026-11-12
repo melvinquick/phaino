@@ -56,9 +56,6 @@ curl -s https://raw.githubusercontent.com/melvinquick/phaino/main/install.py | p
 
 ## Useful Information
 
-[Project](https://github.com/users/melvinquick/projects/19)  
-[Latest Release](https://pypi.org/project/phaino/)
-
 ### Running Scripts
 
 Phaino runs files directly by executing them. For this to work, your script must have a **shebang line** at the top of the file and must be **executable** on your system.
