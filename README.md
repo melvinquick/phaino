@@ -4,7 +4,6 @@
 
 <div align="center">
   <a href="https://github.com/melvinquick/phaino#about">About</a> | 
-  <a href="https://github.com/melvinquick/phaino#purpose">Purpose</a> | 
   <a href="https://github.com/melvinquick/phaino#installation">Installation</a> | 
   <a href="https://github.com/melvinquick/phaino#useful-information">Useful Information</a>
 </div>
@@ -19,13 +18,9 @@
 
 ## About
 
-You may be wondering to yourself where the name **Phaino** comes from. Phaino is short for **Phainopepla**, which is a small black bird with a striking appearance. It doesn't super closely relate to the application itself other than the intent behind the app to be as small as possible given what I want it to do.
+Phaino is named after the **Phainopepla**, a small, striking black bird. This is a nod to the app's goal of being as lightweight as possible. If you're curious, you can read more about the bird [here](https://en.wikipedia.org/wiki/Phainopepla).
 
-If you feel so inclined, you can see an image of a Phainopepla, as well as more information about the bird by looking [here](https://en.wikipedia.org/wiki/Phainopepla)!
-
-## Purpose
-
-Every time I've tried to find a "lightweight IDE" for myself (kind of thinking file editor with some extra features), I was never able to find one that worked for me. Phaino was born out of a desire to finally have that editor for myself.
+I built Phaino because I could never find a "lightweight IDE" that actually worked for me. It's the editor I always wanted: a file editor with a few extra features, built to stay out of your way.
 
 ### Features
 
