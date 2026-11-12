@@ -34,7 +34,7 @@ Every time I've tried to find a "lightweight IDE" for myself (kind of thinking f
 ✅ Basic Git integration with diff viewer  
 ✅ Project saving and session restore  
 ✅ Syntax highlighting for various languages  
-✅ Formatting for various languages (see [Formatting](#formatting) below)  
+✅ Formatting for various languages (see [Formatting](https://github.com/melvinquick/phaino#formatting) below)  
 ✅ Multiple themes for accessibility  
 ✅ Quick Open (`Ctrl+P`) for fast file navigation  
 ✅ "Better Comments" highlighting for TODOs, alerts, and queries  
