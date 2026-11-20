@@ -40,7 +40,7 @@ I built Phaino because I could never find a "lightweight IDE" that actually work
 The installer sets up a dedicated venv and creates a desktop shortcut.
 
 ```
-curl -s https://raw.githubusercontent.com/melvinquick/phaino/main/install.py | python3 -
+curl -s https://raw.githubusercontent.com/melvinquick/phaino/main/install.py | python3 - phaino
 ```
 
 ### Supported Operating Systems
