@@ -95,7 +95,12 @@ class Phaino(QMainWindow):
         super().__init__()
         self.setWindowFlags(Qt.FramelessWindowHint)
 
-        self.settings = QSettings("Phaino", "Phaino")
+        config_dir = os.path.expanduser("~/.config/phaino")
+        os.makedirs(config_dir, exist_ok=True)
+        settings_path = os.path.join(config_dir, "settings.conf")
+
+        self.settings = QSettings(settings_path, QSettings.Format.IniFormat)
+
         saved_theme = self.settings.value("theme", "phaino_dark", type=str)
         if saved_theme not in themes or saved_theme == "general":
             saved_theme = "phaino_dark"
