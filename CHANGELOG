@@ -108,3 +108,22 @@
 
 - Fixed an issue where Git pushes would silently fail without providing feedback
 - Fixed the Commit Message label styling in the Git panel to match the rest of the panel
+
+## 0.7.0 (23 Nov 2026)
+
+### New Features
+
+- Added the "Sugar Pop" (light) and "Sugar Goth" (dark) themes to the theme selection.
+- Renamed the legacy "Phaino Dark/Light" themes to "Phaino Dusk" and "Phaino Dawn" to reflect the colors of the male and female Phainopepla bird.
+
+### Improvements
+
+- **Ecosystem Unification:** Standardized the `ThemeManager`, `themes.yaml`, and `styles.qss` across all Melvin Quick applications for a consistent cross-app experience.
+- Moved the settings file to the standardized `~/.config/phaino/settings.conf` path.
+- Simplified the theme sorting logic in the Preferences dialog to automatically group Dark/Dusk themes before Light/Dawn themes.
+- Updated the main window and menu bar styling to cleanly integrate with the new universal stylesheet.
+
+### Bug Fixes
+
+- Fixed an issue where changing the theme in the Preferences dialog would not update the dialog itself until it was reopened.
+- Fixed several Qt styling artifacts (like underlines beneath menu items and incorrect background colors in the editor and terminal).

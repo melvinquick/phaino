@@ -36,6 +36,9 @@ from PySide6.QtWidgets import (
     QWidget,
 )
 
+from phaino.components.qss_file_handler import QssFileHandler
+from phaino.components.yaml_file_handler import YamlFileHandler
+
 from .components.about_dialog import AboutDialog
 from .components.command_palette import CommandPalette
 from .components.find_replace import FindReplaceWidget
@@ -45,19 +48,12 @@ from .components.git_panel import GitPanel
 from .components.highlighter_factory import get_highlighter
 from .components.preferences_dialog import PreferencesDialog
 from .components.projects_panel import ProjectsPanel
-from .components.qss_file_handler import QssFileHandler
 from .components.quick_open import QuickOpen
 from .components.search_panel import SearchPanel
 from .components.shortcuts_window import ShortcutsWindow
 from .components.tab_manager import TabManager
 from .components.terminal import TerminalWidget
-from .components.yaml_file_handler import YamlFileHandler
-
-style_file = QssFileHandler("../resources/styles/styles.qss")
-style = style_file.load_qss_file()
-
-themes_file = YamlFileHandler("../resources/styles/themes.yaml")
-themes = themes_file.load_yaml_file()
+from .components.theme_manager import ThemeManager
 
 
 class DiffHighlighter(QSyntaxHighlighter):
@@ -95,18 +91,23 @@ class Phaino(QMainWindow):
         super().__init__()
         self.setWindowFlags(Qt.FramelessWindowHint)
 
+        self.themes = YamlFileHandler(
+            "../resources/styles/themes.yaml"
+        ).load_yaml_file()
+        qss = QssFileHandler("../resources/styles/styles.qss").load_qss_file()
+        self.theme_manager = ThemeManager(self.themes, qss)
+
         config_dir = os.path.expanduser("~/.config/phaino")
         os.makedirs(config_dir, exist_ok=True)
         settings_path = os.path.join(config_dir, "settings.conf")
-
         self.settings = QSettings(settings_path, QSettings.Format.IniFormat)
 
-        saved_theme = self.settings.value("theme", "phaino_dark", type=str)
-        if saved_theme not in themes or saved_theme == "general":
-            saved_theme = "phaino_dark"
+        self.theme_name = self.settings.value("theme", ThemeManager.DEFAULT_THEME)
 
-        self.theme_name = saved_theme
-        self.theme_tokens = {**themes[self.theme_name], **themes["general"]}
+        self.theme_tokens = {
+            **self.theme_manager.general,
+            **self.theme_manager.themes[self.theme_name],
+        }
 
         self.format_on_save = self.settings.value("format_on_save", True, type=bool)
         disabled = self.settings.value("format_disabled_languages", [], type=list)
@@ -119,7 +120,6 @@ class Phaino(QMainWindow):
             self.current_root = os.getcwd()
 
         self.drag_position = None
-
         self._ignore_watch_paths = set()
         self._watch_cooldowns = {}
 
@@ -450,7 +450,7 @@ class Phaino(QMainWindow):
         tab_widths = sum(
             self.sidebar_tabs.tabBar().tabRect(i).width() for i in range(3)
         )
-        self.sidebar_tabs.setMinimumWidth(tab_widths + 20)
+        self.sidebar_tabs.setMinimumWidth(tab_widths + 10)
 
         self.editor_splitter = QSplitter(Qt.Vertical)
         self.editor_splitter.addWidget(self.find_widget)
@@ -502,19 +502,39 @@ class Phaino(QMainWindow):
     # ==========================================
 
     def apply_theme(self, theme_name):
-        self.theme_name = theme_name if theme_name in themes else "dark"
-        self.theme_tokens = {**themes[self.theme_name], **themes["general"]}
+        self.theme_name = (
+            theme_name if theme_name in self.theme_manager.themes else "phaino_dark"
+        )
+        self.theme_tokens = {
+            **self.theme_manager.themes.get("general", {}),
+            **self.theme_manager.themes[self.theme_name],
+        }
 
         base = self.settings.value("font_size", 15, type=int)
-        self.theme_tokens["font-size"] = f"{base}px"
+        self.theme_tokens["font-size-base"] = f"{base}px"
         self.theme_tokens["font-size-lg"] = f"{max(8, round(base * 16 / 15))}px"
         self.theme_tokens["font-size-md"] = f"{max(8, round(base * 13 / 15))}px"
         self.theme_tokens["font-size-sm"] = f"{max(8, round(base * 12 / 15))}px"
         self.theme_tokens["font-size-xs"] = f"{max(8, round(base * 11 / 15))}px"
 
-        stylesheet = style
-        for key, value in self.theme_tokens.items():
-            stylesheet = stylesheet.replace("{{" + key + "}}", str(value))
+        stylesheet = self.theme_manager.render(self.theme_name)
+
+        # Inject Phaino's dynamically calculated font sizes
+        stylesheet = stylesheet.replace(
+            "{{font-size-base}}", self.theme_tokens["font-size-base"]
+        )
+        stylesheet = stylesheet.replace(
+            "{{font-size-lg}}", self.theme_tokens["font-size-lg"]
+        )
+        stylesheet = stylesheet.replace(
+            "{{font-size-md}}", self.theme_tokens["font-size-md"]
+        )
+        stylesheet = stylesheet.replace(
+            "{{font-size-sm}}", self.theme_tokens["font-size-sm"]
+        )
+        stylesheet = stylesheet.replace(
+            "{{font-size-xs}}", self.theme_tokens["font-size-xs"]
+        )
 
         self.setStyleSheet(stylesheet)
 
@@ -868,7 +888,7 @@ class Phaino(QMainWindow):
         self.quick_open.activateWindow()
 
     def show_preferences(self):
-        dialog = PreferencesDialog(self.settings, themes, self)
+        dialog = PreferencesDialog(self.settings, self.theme_manager, self)
         dialog.settings_changed.connect(self._apply_preferences)
         dialog.exec()
 

@@ -1,38 +1,121 @@
 /* =========================================
-   BASE WIDGETS
+   BASE WIDGETS & GLOBAL
    ========================================= */
 
-QLineEdit {
-    background-color: {{widget-background-color}};
+QWidget {
+    background-color: {{background-color}};
+    color: {{color}};
+    font-family: "{{font-family}}";
+    font-size: {{font-size-base}};
+}
+
+QMainWindow, QDialog {
+    background-color: {{background-color}};
+}
+
+QToolTip {
+    background-color: {{surface-color}};
     color: {{color}};
     border: {{border}};
     border-radius: {{border-radius}};
-    padding: {{padding}};
-    font-size: {{font-size-md}};
-    selection-background-color: {{accent-color}};
+    padding: {{padding-v}} {{padding-h}};
 }
 
-QLineEdit:focus {
-    border: 1px solid {{accent-color}};
+QLabel {
+    background: transparent;
+    color: {{color}};
 }
+
+QMenuBar {
+    background-color: {{surface-color}};
+    color: {{color}};
+    border-bottom: {{border}};
+}
+
+QMenuBar::item {
+    background: transparent;
+    padding: 6px 12px;
+    border-radius: {{border-radius}};
+}
+
+QMenuBar::item:selected {
+    background-color: {{widget-background-color}};
+}
+
+QMenu {
+    background-color: {{surface-color}};
+    color: {{color}};
+    border: {{border}};
+    border-radius: {{border-radius}};
+    padding: 4px;
+}
+
+QMenu::item {
+    padding: 6px 24px;
+    border-radius: {{border-radius}};
+}
+
+QMenu::item:selected {
+    background-color: {{accent-color}};
+    color: {{accent-text-color}};
+}
+
+QFrame#Card, QFrame#Section {
+    background-color: {{surface-color}};
+    border: {{border}};
+    border-radius: {{border-radius}};
+}
+
+QLabel#DialogTitle {
+    font-size: {{font-size-lg}};
+    font-weight: 700;
+    color: {{color}};
+}
+
+QLabel#SectionTitle {
+    font-size: {{font-size-lg}};
+    font-weight: 700;
+    color: {{color}};
+    padding-bottom: 8px;
+    border-bottom: {{border}};
+}
+
+QLabel#MutedLabel {
+    color: {{muted-color}};
+    font-size: {{font-size-base}};
+}
+
+/* =========================================
+   BUTTONS
+   ========================================= */
 
 QPushButton {
     background-color: {{widget-background-color}};
     color: {{color}};
     border: {{border}};
     border-radius: {{border-radius}};
-    padding: {{padding}};
-    font-size: {{font-size-md}};
+    padding: {{padding-v}} {{padding-h}};
+    min-height: 24px;
 }
 
 QPushButton:hover {
     border-color: {{accent-color}};
 }
 
+QPushButton:pressed {
+    background-color: {{accent-color}};
+    color: {{accent-text-color}};
+}
+
+QPushButton:disabled {
+    color: {{muted-color}};
+    background-color: {{surface-color}};
+}
+
 QPushButton#PrimaryButton {
     background-color: {{accent-color}};
     color: {{accent-text-color}};
-    border: none;
+    border: 1px solid {{accent-color}};
     font-weight: 700;
     padding: 12px 16px;
     font-size: {{font-size-lg}};
@@ -40,16 +123,86 @@ QPushButton#PrimaryButton {
 
 QPushButton#PrimaryButton:hover {
     background-color: {{accent-hover-color}};
+    border-color: {{accent-hover-color}};
 }
 
-QPlainTextEdit {
-    background-color: {{background-color}};
+QPushButton#PrimaryButton:pressed {
+    background-color: {{accent-color}};
+    border-color: {{accent-color}};
+}
+
+QPushButton#IconButton {
+    background: transparent;
+    border: none;
+    padding: 0;
+}
+
+QPushButton#IconButton:hover {
+    background-color: {{surface-color}};
+    border-radius: {{border-radius}};
+}
+
+/* =========================================
+   INPUTS & COMBOBOXES
+   ========================================= */
+
+QLineEdit, QPlainTextEdit, QSpinBox, QComboBox {
+    background-color: {{widget-background-color}};
     color: {{color}};
-    border: 1px solid {{border}};
+    border: {{border}};
+    border-radius: {{border-radius}};
+    padding: {{padding-v}} {{padding-h}};
     selection-background-color: {{accent-color}};
     selection-color: {{accent-text-color}};
-    padding: 10px;
 }
+
+QLineEdit:focus, QPlainTextEdit:focus, QSpinBox:focus, QComboBox:focus {
+    border: 1px solid {{accent-color}};
+}
+
+QComboBox::drop-down {
+    border: none;
+    width: 30px;
+}
+
+QComboBox QAbstractItemView {
+    background-color: {{surface-color}};
+    color: {{color}};
+    border: {{border}};
+    border-radius: {{border-radius}};
+    selection-background-color: {{accent-color}};
+    selection-color: {{accent-text-color}};
+    outline: none;
+}
+
+/* =========================================
+   CHECKBOXES
+   ========================================= */
+
+QCheckBox {
+    color: {{color}};
+    spacing: 8px;
+    background: transparent;
+    padding: 4px 0px;
+}
+
+QCheckBox::indicator {
+    width: 16px;
+    height: 16px;
+    border: {{border}};
+    border-radius: 3px;
+    background-color: {{widget-background-color}};
+}
+
+QCheckBox::indicator:checked {
+    background-color: {{accent-color}};
+    border-color: {{accent-color}};
+    image: url(data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSJ3aGl0ZSIgc3Ryb2tlLXdpZHRoPSIzIiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiPjxwb2x5bGluZSBwb2ludHM9IjIwIDYgOSAxNyA0IDEyIj48L3BvbHlsaW5lPjwvc3ZnPg==);
+}
+
+/* =========================================
+   SCROLLBARS & SLIDERS
+   ========================================= */
 
 QScrollBar:vertical {
     border: none;
@@ -77,23 +230,6 @@ QScrollArea {
     background-color: transparent;
 }
 
-QMenu {
-    background-color: {{surface-color}};
-    color: {{color}};
-    border: 1px solid {{border}};
-    font-size: {{font-size-sm}};
-}
-
-QMenu::item {
-    padding: 6px 24px;
-    background-color: transparent;
-}
-
-QMenu::item:selected {
-    background-color: {{accent-color}};
-    color: {{accent-text-color}};
-}
-
 /* =========================================
    MAIN LAYOUT & CONTAINERS
    ========================================= */
@@ -103,7 +239,7 @@ QMenu::item:selected {
 }
 
 QWidget#EditorContainer {
-    border-left: 1px solid {{border}};
+    border-left: {{border}};
 }
 
 QSplitter::handle {
@@ -114,13 +250,13 @@ QSplitter::handle {
 QStatusBar {
     background-color: {{surface-color}};
     color: {{color}};
-    border-top: 1px solid {{border}};
+    border-top: {{border}};
 }
 
 QStatusBar QLabel {
     color: {{color}};
     padding: 0px 8px;
-    font-size: {{font-size-sm}};
+    font-size: {{font-size-base}};
 }
 
 /* =========================================
@@ -136,7 +272,7 @@ QPushButton#BreadcrumbSegment {
     color: {{muted-color}};
     border: none;
     padding: 0px 4px;
-    font-size: {{font-size-xs}};
+    font-size: {{font-size-base}};
 }
 
 QPushButton#BreadcrumbSegment:hover {
@@ -149,7 +285,7 @@ QPushButton#BreadcrumbFile {
     color: {{color}};
     border: none;
     padding: 0px 4px;
-    font-size: {{font-size-xs}};
+    font-size: {{font-size-base}};
 }
 
 QPushButton#BreadcrumbFile:hover {
@@ -158,7 +294,7 @@ QPushButton#BreadcrumbFile:hover {
 
 QLabel#BreadcrumbSeparator {
     color: {{muted-color}};
-    font-size: {{font-size-xs}};
+    font-size: {{font-size-base}};
     padding: 0px 1px;
 }
 
@@ -170,10 +306,10 @@ QLineEdit#PathInput {
     background-color: {{background-color}};
     color: {{color}};
     border: none;
-    border-bottom: 1px solid {{border}};
+    border-bottom: {{border}};
     border-radius: 0px;
     padding: 8px;
-    font-size: {{font-size-sm}};
+    font-size: {{font-size-base}};
 }
 
 QLineEdit#PathInput:focus {
@@ -185,7 +321,7 @@ QTreeView {
     color: {{color}};
     border: none;
     outline: none;
-    font-size: {{font-size-sm}};
+    font-size: {{font-size-base}};
 }
 
 QTreeView::item {
@@ -217,7 +353,7 @@ QTabWidget::pane {
 QTabBar {
     background-color: {{background-color}};
     border: none;
-    font-size: {{font-size-sm}};
+    font-size: {{font-size-base}};
 }
 
 QTabBar::tab {
@@ -262,20 +398,20 @@ QPushButton#NewTabButton:hover {
    ========================================= */
 
 #TerminalOutput {
-    border-top: 1px solid {{border}};
+    border-top: {{border}};
     padding: 5px;
     font-family: 'Fira Code', 'JetBrains Mono', 'Consolas', monospace;
-    font-size: {{font-size-sm}};
+    font-size: {{font-size-base}};
 }
 
 #TerminalInput {
     background-color: {{surface-color}};
     color: {{color}};
     border: none;
-    border-top: 1px solid {{border}};
+    border-top: {{border}};
     padding: 6px 8px;
     font-family: 'Fira Code', 'JetBrains Mono', 'Consolas', monospace;
-    font-size: {{font-size-sm}};
+    font-size: {{font-size-base}};
 }
 
 #TerminalInput:focus {
@@ -287,7 +423,7 @@ QPushButton#NewTabButton:hover {
     color: {{accent-text-color}};
     border: none;
     font-weight: bold;
-    font-size: {{font-size-xs}};
+    font-size: {{font-size-base}};
     border-radius: 4px;
     margin: 4px;
 }
@@ -307,7 +443,7 @@ QPushButton#NewTabButton:hover {
 
 #FindReplaceWidget {
     background-color: {{surface-color}};
-    border-bottom: 1px solid {{border}};
+    border-bottom: {{border}};
 }
 
 QPushButton#CloseFindButton {
@@ -316,7 +452,7 @@ QPushButton#CloseFindButton {
     font-weight: bold;
     padding: 4px;
     border: none;
-    font-size: {{font-size-sm}};
+    font-size: {{font-size-base}};
 }
 
 QPushButton#CloseFindButton:hover {
@@ -334,10 +470,10 @@ QPushButton#CloseFindButton:hover {
 #SearchPanel QLineEdit {
     background-color: {{surface-color}};
     color: {{color}};
-    border: 1px solid {{border}};
+    border: {{border}};
     border-radius: 4px;
     padding: 6px;
-    font-size: {{font-size-md}};
+    font-size: {{font-size-base}};
 }
 
 #SearchPanel QLineEdit:focus {
@@ -346,7 +482,7 @@ QPushButton#CloseFindButton:hover {
 
 #SearchPanel QPushButton {
     padding: 4px 8px;
-    font-size: {{font-size-sm}};
+    font-size: {{font-size-base}};
     border-radius: 4px;
 }
 
@@ -355,7 +491,7 @@ QPushButton#CloseFindButton:hover {
     color: {{color}};
     border: none;
     outline: none;
-    font-size: {{font-size-sm}};
+    font-size: {{font-size-base}};
 }
 
 #SearchPanel QTreeWidget::item {
@@ -393,9 +529,9 @@ QPushButton#CloseFindButton:hover {
     color: {{muted-color}};
     padding: 4px;
     border: none;
-    border-bottom: 1px solid {{border}};
+    border-bottom: {{border}};
     font-weight: bold;
-    font-size: {{font-size-sm}};
+    font-size: {{font-size-base}};
 }
 
 #SearchPanel QHeaderView {
@@ -412,17 +548,17 @@ QPushButton#CloseFindButton:hover {
 
 #PreferencesDialog QLabel {
     color: {{color}};
-    font-size: {{font-size-md}};
+    font-size: {{font-size-base}};
 }
 
 #PreferencesDialog QGroupBox {
     color: {{color}};
     font-weight: bold;
-    border: 1px solid {{border}};
+    border: {{border}};
     border-radius: 6px;
     margin-top: 10px;
     padding-top: 12px;
-    font-size: {{font-size-md}};
+    font-size: {{font-size-base}};
 }
 
 #PreferencesDialog QGroupBox::title {
@@ -435,10 +571,10 @@ QPushButton#CloseFindButton:hover {
 #PreferencesDialog QSpinBox {
     background-color: {{widget-background-color}};
     color: {{color}};
-    border: 1px solid {{border}};
+    border: {{border}};
     border-radius: 4px;
     padding: 4px;
-    font-size: {{font-size-md}};
+    font-size: {{font-size-base}};
 }
 
 #PreferencesDialog QComboBox QAbstractItemView {
@@ -450,7 +586,7 @@ QPushButton#CloseFindButton:hover {
 
 #PreferencesDialog QCheckBox {
     color: {{color}};
-    font-size: {{font-size-md}};
+    font-size: {{font-size-base}};
     spacing: 8px;
 }
 
@@ -472,7 +608,7 @@ QPushButton#CloseFindButton:hover {
 }
 
 #PreferencesDialog QScrollArea {
-    border: 1px solid {{border}};
+    border: {{border}};
     border-radius: 4px;
     background-color: {{surface-color}};
 }
@@ -487,7 +623,7 @@ QPushButton#CloseFindButton:hover {
 
 #TitleBar {
     background-color: {{surface-color}};
-    border-bottom: 1px solid {{border}};
+    border-bottom: {{border}};
 }
 
 QPushButton#MenuButton {
@@ -495,7 +631,7 @@ QPushButton#MenuButton {
     color: {{color}};
     border: none;
     padding: 0px 12px;
-    font-size: {{font-size-md}};
+    font-size: {{font-size-base}};
     border-radius: 0px;
 }
 
@@ -531,7 +667,7 @@ QPushButton#WindowDot {
 
 #ShortcutSection {
     color: {{accent-color}};
-    font-size: {{font-size-md}};
+    font-size: {{font-size-base}};
     font-weight: bold;
     margin-top: 10px;
     margin-bottom: 5px;
@@ -541,12 +677,12 @@ QPushButton#WindowDot {
     color: {{warning-color}};
     font-weight: bold;
     font-family: 'Fira Code', 'JetBrains Mono', monospace;
-    font-size: {{font-size-sm}};
+    font-size: {{font-size-base}};
 }
 
 #ShortcutDesc {
     color: {{color}};
-    font-size: {{font-size-sm}};
+    font-size: {{font-size-base}};
 }
 
 /* =========================================
@@ -563,16 +699,16 @@ QPushButton#WindowDot {
     border: 1px solid {{accent-color}};
     border-radius: 4px;
     padding: 8px;
-    font-size: {{font-size-md}};
+    font-size: {{font-size-base}};
 }
 
 #CommandPalette QListWidget {
     background-color: {{surface-color}};
     color: {{color}};
-    border: 1px solid {{border}};
+    border: {{border}};
     border-radius: 4px;
     outline: none;
-    font-size: {{font-size-sm}};
+    font-size: {{font-size-base}};
 }
 
 #CommandPalette QListWidget::item {
@@ -592,7 +728,7 @@ QPushButton#WindowDot {
 
 #CommandPaletteHint {
     color: {{muted-color}};
-    font-size: {{font-size-xs}};
+    font-size: {{font-size-base}};
 }
 
 /* =========================================
@@ -605,7 +741,7 @@ QPushButton#WindowDot {
     border: none;
     gridline-color: transparent;
     outline: none;
-    font-size: {{font-size-sm}};
+    font-size: {{font-size-base}};
 }
 
 #GitPanel QTableWidget::item {
@@ -626,7 +762,7 @@ QPushButton#WindowDot {
 #GitPanel QTableWidget::item:disabled {
     background-color: {{surface-color}};
     color: {{muted-color}};
-    border-bottom: 1px solid {{border}};
+    border-bottom: {{border}};
 }
 
 #GitPanel QHeaderView::section {
@@ -634,9 +770,9 @@ QPushButton#WindowDot {
     color: {{muted-color}};
     padding: 6px;
     border: none;
-    border-bottom: 1px solid {{border}};
+    border-bottom: {{border}};
     font-weight: bold;
-    font-size: {{font-size-sm}};
+    font-size: {{font-size-base}};
 }
 
 #GitBranchLabel {
@@ -649,22 +785,22 @@ QPushButton#WindowDot {
 #GitPanel QTextEdit {
     background-color: {{surface-color}};
     color: {{color}};
-    border: 1px solid {{border}};
+    border: {{border}};
     border-radius: 4px;
     padding: 5px;
     font-family: 'Fira Code', 'JetBrains Mono', monospace;
-    font-size: {{font-size-sm}};
+    font-size: {{font-size-base}};
 }
 
 #GitPanel QPushButton {
     padding: 6px;
-    font-size: {{font-size-md}};
+    font-size: {{font-size-base}};
     border-radius: 4px;
 }
 
 #GitPanel QLabel#CommitMessageLabel {
     color: {{color}};
-    font-size: {{font-size-sm}};
+    font-size: {{font-size-base}};
     margin-top: 5px;
 }
 
@@ -678,7 +814,7 @@ QPushButton#WindowDot {
 
 #ProjectsHintLabel {
     color: {{muted-color}};
-    font-size: {{font-size-sm}};
+    font-size: {{font-size-base}};
     padding: 8px;
 }
 
@@ -687,7 +823,7 @@ QPushButton#WindowDot {
     color: {{color}};
     border: none;
     outline: none;
-    font-size: {{font-size-sm}};
+    font-size: {{font-size-base}};
 }
 
 #ProjectsPanel QListWidget::item {
@@ -707,7 +843,7 @@ QPushButton#WindowDot {
 
 #ProjectsPanel QPushButton {
     padding: 6px;
-    font-size: {{font-size-md}};
+    font-size: {{font-size-base}};
     border-radius: 4px;
 }
 
@@ -743,4 +879,86 @@ QPushButton#WindowDot {
 
 #AboutDialog QLabel#LinkLabel {
     font-size: 13px;
+}
+
+/* =========================================
+   PHAINO SPECIFIC LAYOUT OVERRIDES
+   ========================================= */
+
+/* Tighter padding for IDE elements */
+QTabBar::tab {
+    padding: 4px 12px;
+    margin-right: 2px;
+}
+
+QPushButton {
+    padding: 4px 8px;
+}
+
+QLineEdit {
+    padding: 4px 8px;
+}
+
+QTreeView::item {
+    padding: 2px;
+}
+
+QMenu::item {
+    padding: 4px 20px;
+}
+
+/* Fix the sidebar tab bar (Explorer, Source Control, etc) */
+#SidebarTabs QTabBar::tab {
+    padding: 6px 12px;
+}
+
+/* Fix the sidebar search/path inputs */
+QLineEdit#PathInput {
+    padding: 4px 8px;
+}
+
+/* Fix the terminal layout */
+#TerminalOutput {
+    padding: 4px;
+}
+
+#TerminalInput {
+    padding: 4px 8px;
+}
+
+/* Ensure the editor text area has zero margins so it fills the space */
+QPlainTextEdit {
+    padding: 0px;
+    border: none;
+}
+
+QWidget#EditorContainer {
+    padding: 0px;
+    margin: 0px;
+}
+
+/* =========================================
+   PHAINO BACKGROUND & SIDEBAR FIXES
+   ========================================= */
+
+/* 1. Fix the Editor & Terminal "Gray" Backgrounds */
+QPlainTextEdit {
+    background-color: {{background-color}};
+    border: none;
+}
+
+#TerminalOutput {
+    background-color: {{background-color}};
+}
+
+/* 2. Fix the Crushed Sidebar Tabs */
+#SidebarTabs QTabBar::tab {
+    padding: 4px 8px;
+    font-size: 11px;
+}
+
+/* 3. Fix the Path Input Crushing */
+QLineEdit#PathInput {
+    padding: 2px 6px;
+    min-height: 20px;
 }

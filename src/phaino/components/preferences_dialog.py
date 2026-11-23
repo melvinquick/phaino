@@ -20,7 +20,7 @@ from .formatter_factory import FORMATTER_MAP, FORMATTER_NAMES
 class PreferencesDialog(QDialog):
     settings_changed = Signal()
 
-    def __init__(self, settings, themes, parent=None):
+    def __init__(self, settings, theme_manager, parent=None):
         super().__init__(parent)
         self.setWindowTitle("Preferences")
         self.setObjectName("PreferencesDialog")
@@ -28,7 +28,7 @@ class PreferencesDialog(QDialog):
         self.setModal(True)
 
         self.settings = settings
-        self.themes = themes
+        self.theme_manager = theme_manager
 
         layout = QVBoxLayout(self)
         layout.setContentsMargins(20, 20, 20, 20)
@@ -41,12 +41,12 @@ class PreferencesDialog(QDialog):
         theme_row = QHBoxLayout()
         theme_row.addWidget(QLabel("Theme:"))
         self.theme_combo = QComboBox()
-        for key in themes:
-            if key == "general":
-                continue
-            display = key.replace("_", " ").title()
+
+        for key in self.theme_manager.get_available_themes():
+            display = self.theme_manager.get_display_name(key)
             self.theme_combo.addItem(display, key)
-        current_theme = settings.value("theme", "phaino_dark", type=str)
+
+        current_theme = settings.value("theme", "phaino_dusk", type=str)
         idx = self.theme_combo.findData(current_theme)
         if idx >= 0:
             self.theme_combo.setCurrentIndex(idx)

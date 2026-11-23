@@ -1,7 +1,7 @@
 import os
 
 from PySide6.QtCore import QEvent, Qt, Signal
-from PySide6.QtGui import QColor, QPainter, QPalette, QPixmap
+from PySide6.QtGui import QColor, QPainter, QPixmap
 from PySide6.QtWidgets import (
     QHBoxLayout,
     QLabel,
@@ -58,9 +58,6 @@ class TabManager(QWidget):
 
         self.main_layout.addWidget(self.tabs)
 
-        self.setAutoFillBackground(True)
-        self.apply_palette()
-
     def eventFilter(self, obj, event):
         if obj == self.tabs.tabBar() and event.type() == QEvent.MouseButtonRelease:
             if event.button() == Qt.MiddleButton:
@@ -92,26 +89,8 @@ class TabManager(QWidget):
 
         return label
 
-    def apply_palette(self):
-        palette = self.palette()
-        bg_color = QColor(self.theme_tokens.get("background-color"))
-        palette.setColor(QPalette.Window, bg_color)
-        palette.setColor(QPalette.Base, bg_color)
-        palette.setColor(QPalette.Button, bg_color)
-        self.setPalette(palette)
-
-        tabs_palette = self.tabs.palette()
-        tabs_palette.setColor(QPalette.Window, bg_color)
-        tabs_palette.setColor(QPalette.Base, bg_color)
-        self.tabs.setPalette(tabs_palette)
-
-        tabbar_palette = self.tabs.tabBar().palette()
-        tabbar_palette.setColor(QPalette.Window, bg_color)
-        self.tabs.tabBar().setPalette(tabbar_palette)
-
     def update_theme(self, theme_tokens):
         self.theme_tokens = theme_tokens
-        self.apply_palette()
         for i in range(self.count()):
             editor = self.widget(i)
             if editor and hasattr(editor, "update_theme"):

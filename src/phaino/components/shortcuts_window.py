@@ -17,65 +17,6 @@ class ShortcutsWindow(QDialog):
         self.resize(500, 600)
         self.setObjectName("ShortcutsWindow")
 
-        bg_color = theme_tokens.get("background-color")
-        color = theme_tokens.get("color")
-        muted = theme_tokens.get("muted-color")
-        surface = theme_tokens.get("surface-color")
-        accent = theme_tokens.get("accent-color")
-
-        self.setStyleSheet(f"""
-            QDialog {{
-                background-color: {bg_color};
-            }}
-            QLabel {{
-                color: {color};
-                background-color: transparent;
-            }}
-            QLabel#ShortcutsTitle {{
-                font-size: 20px;
-                font-weight: bold;
-                margin-bottom: 20px;
-            }}
-            QLabel#ShortcutSection {{
-                color: {color};
-                font-size: 14px;
-                font-weight: bold;
-                margin-top: 15px;
-                margin-bottom: 5px;
-                border-bottom: 1px solid {surface};
-                padding-bottom: 4px;
-            }}
-            QLabel#ShortcutKey {{
-                color: {color};
-                font-family: 'Fira Code', 'JetBrains Mono', monospace;
-                font-size: 13px;
-            }}
-            QLabel#ShortcutDesc {{
-                color: {muted};
-                font-size: 13px;
-            }}
-            QScrollArea {{
-                border: none;
-                background-color: transparent;
-            }}
-            QScrollArea > QWidget > QWidget {{
-                background-color: {bg_color};
-            }}
-            QPushButton#PrimaryButton {{
-                background-color: {surface};
-                color: {color};
-                border: 1px solid {muted};
-                border-radius: 4px;
-                padding: 8px 24px;
-                font-weight: bold;
-            }}
-            QPushButton#PrimaryButton:hover {{
-                background-color: {accent};
-                color: white;
-                border: 1px solid {accent};
-            }}
-        """)
-
         main_layout = QVBoxLayout(self)
         main_layout.setContentsMargins(30, 30, 30, 30)
 
